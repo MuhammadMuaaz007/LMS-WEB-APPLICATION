@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import ErrorHandler from "./middleware/error"
 
 dotenv.config();
 export const app = express();
@@ -32,3 +33,5 @@ app.all(/.*/,(req: Request, res: Response, next: NextFunction) => {
   err.statusCode = 404;
   next(err);
 });
+
+app.use(ErrorHandler);
