@@ -8,20 +8,16 @@ import ErrorMiddleware from "./middleware/error.js";
 
 dotenv.config();
 export const app = express();
-
 // body parser
 app.use(express.json({ limit: "50mb" }));
-
 // cookie parser
 app.use(cookieParser());
-
 // cors => cross origin resource sharing
 app.use(
   cors({
     origin: process.env.ORIGIN,
   })
 );
-
 app.use("/api/v1", userRouter);
 // testing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
