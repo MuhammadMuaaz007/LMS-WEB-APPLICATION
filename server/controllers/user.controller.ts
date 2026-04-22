@@ -1,4 +1,4 @@
-
+import type { NextFunction, Request, Response } from "express"; // Add Request and Response here
 import userModel from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
@@ -7,7 +7,7 @@ import jwt, { type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
 import ejs from "ejs";
 import path from "path";
-import type { NextFunction } from "express";
+import sendMailer from "../utils/sendmail.js";
 dotenv.config();
 
 
@@ -20,6 +20,7 @@ interface IRegistrationBody{
 
 export const registrationUser= CatchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
   try {
+      // @ts-ignore
       const {name,email,password}=req.body;
       const isEmailExist=await userModel.findOne({email});
       if(isEmailExist){
@@ -29,12 +30,26 @@ export const registrationUser= CatchAsyncError(async(req:Request,res:Response,ne
         name,email,password
       }
       const {token,activationCode}=createActivationToken(user);
-      const data={user:{user:user.name},activationCode}
-       const html = await ejs.renderFile(path.join(__dirname, "../mails/activation-mailer.ejs"), data);
-       
+      const data={user:{name:user.name},activationCode}
+      //  const html = await ejs.renderFile(path.join(__dirname, "../mails/activation-mailer.ejs"), data);
+          try {
+            await sendMailer({
+                email: user.email,
+                subject: "Activate your account",
+                template: "activation-mail.ejs",  // Ensure the template name is correct /activation-mailer.
+                data,
+            });
 
-
-
+            res.status(201).json({
+                success: true,
+                message: `Please check your email: ${user.email} to activate your account!`,
+                activationToken: token, 
+                user 
+            });
+            
+        } catch (err: any) {
+            return next(new ErrorHandler(err.message, 400));
+        }
   } catch (error:any) {
     return next(new ErrorHandler(error.message,400));
     
