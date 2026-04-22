@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";  
+import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import ErrorHandler from "./middleware/error"
+import userRouter from "./routes/user.route.js";
+import ErrorMiddleware from "./middleware/error.js";
 
 dotenv.config();
 export const app = express();
@@ -20,6 +22,7 @@ app.use(
   })
 );
 
+app.use("/api/v1", userRouter);
 // testing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
@@ -34,4 +37,4 @@ app.all(/.*/,(req: Request, res: Response, next: NextFunction) => {
   next(err);
 });
 
-app.use(ErrorHandler);
+app.use(ErrorMiddleware);

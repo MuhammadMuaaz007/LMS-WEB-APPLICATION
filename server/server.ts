@@ -1,5 +1,6 @@
 import {app} from './app.js';
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 import connectDB from './utils/db.js';
 
 //create server

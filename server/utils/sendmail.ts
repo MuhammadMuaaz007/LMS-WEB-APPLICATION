@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { fileURLToPath } from 'url'; // Required for ESM
 import ejs from 'ejs'
 import path from "path"
 import dotenv from "dotenv"
@@ -9,6 +10,12 @@ interface EmailOption{
     template:string,
     data:{[key:string]:any}
 }
+
+
+
+// Standard ESM boilerplate for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const sendMailer=async (option:EmailOption):Promise <void>=>{
     const transporter:Transporter=nodemailer.createTransport({
