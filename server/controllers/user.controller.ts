@@ -76,8 +76,8 @@ interface IActivationRequest {
 
 export const activateUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { activation_token, activation_code } = req.body as IActivationRequest;
-
+    const { activation_token, activation_code } = req.body;      // as IActivationRequest;
+    
     const newUser: { user: IUser; activationCode: string } = jwt.verify(
       activation_token,
       process.env.ACTIVATION_SECRET as string
@@ -103,6 +103,7 @@ export const activateUser = CatchAsyncError(async (req: Request, res: Response, 
 
     res.status(201).json({
       success: true,
+      user,
     });
   } catch (error: any) {
     return next(new ErrorHandler(error.message, 400));
