@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import { IUser } from "../models/user.model.js";
 import { Response } from "express";
-import { JsonWebTokenError } from "jsonwebtoken";
 import { redis } from "./redis.js";
 
 interface ITokenOptions {
@@ -47,7 +46,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
 
   res.cookie("access_token", accessToken, accessTokenOptions);
   res.cookie("refresh_token", refreshToken, refreshTokenOptions);
-
+  
   res.status(statusCode).json({
     success: true,
     user,
