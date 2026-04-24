@@ -3,12 +3,12 @@ import userModel, { IUser } from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
 import bcrypt from "bcryptjs";
-import jwt, { type Secret } from "jsonwebtoken";
+import jwt, { JwtPayload, type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
 import ejs from "ejs";
 import path from "path";
 import sendMailer from "../utils/sendmail.js";
-import { sendToken } from "../utils/jwt.js";
+import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt.js";
 import { redis } from "../utils/redis.js";
 dotenv.config();
 
@@ -160,4 +160,43 @@ export const logoutUser=CatchAsyncError(async(req:Request,res:Response,next:Next
     return next(new ErrorHandler(error.message,400))
   }
 })
+
+
+
+export const updateAccessToken=CatchAsyncError(
+    async(req:Request,res:Response, next:NextFunction)=>{
+
+        try{
+            const refresh_Token=req.cookies.refresh_token as string;
+            const decoded=jwt.verify(refresh_Token,process.env.REFRESH_TOKEN as string) as JwtPayload;
+
+            if(!decoded)
+            {
+                return next(new ErrorHandler("Could not refresh token",400))
+            }
+        
+            const session_user_redis=await redis.get(decoded.id)
+            if(!session_user_redis){
+                return next(new ErrorHandler("PLZ login to access this ",400))
+
+            }
+
+            const user=JSON.parse(session_user_redis) // JSON.parse() → string ➜ object  JSON.stringify() → object ➜ string
+            const accessToken=jwt.sign({id:user._id},process.env.ACCESS_TOKEN as string,{expiresIn:"5m"});
+            const refreshToken=jwt.sign({id:user._id},process.env.REFRESH_TOKEN as string,{expiresIn:"7d"})
+            req.user=user;
+            res.cookie('access_token', accessToken, accessTokenOptions);
+            res.cookie('refresh_token', refreshToken, refreshTokenOptions);
+            // await redis.set(user._id,JSON.stringify(user),"EX",604800)
+          next();
+          res.status(200).json({
+            success:true,
+            accessToken,
+        })}
+        catch(err:any)
+        {
+            return next(new ErrorHandler(err.message,400))
+        }
+}
+)
 
