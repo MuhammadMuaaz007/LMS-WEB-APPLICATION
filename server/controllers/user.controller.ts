@@ -10,6 +10,7 @@ import path from "path";
 import sendMailer from "../utils/sendmail.js";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt.js";
 import { redis } from "../utils/redis.js";
+import { getUserById } from "../services/user.service.js";
 dotenv.config();
 
 
@@ -188,8 +189,7 @@ export const updateAccessToken=CatchAsyncError(
             res.cookie('access_token', accessToken, accessTokenOptions);
             res.cookie('refresh_token', refreshToken, refreshTokenOptions);
             // await redis.set(user._id,JSON.stringify(user),"EX",604800)
-          next();
-          res.status(200).json({
+          return res.status(200).json({
             success:true,
             accessToken,
         })}
@@ -199,4 +199,19 @@ export const updateAccessToken=CatchAsyncError(
         }
 }
 )
+
+//get user info
+export const getUserInfo = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user?._id || '';
+    const user = await getUserById(userId);
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+    res.status(200).json({
+      success: true,
+      user
+    });
+  }
+);
 
