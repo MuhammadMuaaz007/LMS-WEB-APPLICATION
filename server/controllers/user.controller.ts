@@ -185,9 +185,9 @@ export const updateAccessToken=CatchAsyncError(
             const user=JSON.parse(session_user_redis) // JSON.parse() → string ➜ object  JSON.stringify() → object ➜ string
             const accessToken=jwt.sign({id:user._id},process.env.ACCESS_TOKEN as string,{expiresIn:"5m"});
             const refreshToken=jwt.sign({id:user._id},process.env.REFRESH_TOKEN as string,{expiresIn:"7d"})
-            req.user=user;
             res.cookie('access_token', accessToken, accessTokenOptions);
             res.cookie('refresh_token', refreshToken, refreshTokenOptions);
+            req.user=user;
             // await redis.set(user._id,JSON.stringify(user),"EX",604800)
           return res.status(200).json({
             success:true,
@@ -228,7 +228,7 @@ interface ISocialAuthBody {
 export const socialAuth = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, name, avatar } = req.body as ISocialAuthBody;
+      const { email, name, avatar } = req.body as ISocialAuthBody || {};
       const user = await userModel.findOne({ email });
 
       if (!user) {
@@ -243,3 +243,52 @@ export const socialAuth = CatchAsyncError(
   }
 );
 
+// user info
+
+interface IUpdateUserInfo{
+  name?:string;
+  email?:string;
+}
+
+export const updateUserInfo = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, name } = req.body as IUpdateUserInfo || {};
+    const userId = req.user?._id;
+
+    if (!userId) {
+       return next(new ErrorHandler("User not found", 404));
+    }
+
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return next(new ErrorHandler("User not found", 404));
+    }
+
+    // Check if email is being updated and if it's unique
+    if (email && email !== user.email) {
+      const isEmailExist = await userModel.findOne({ email });
+      if (isEmailExist) {
+        return next(new ErrorHandler("Email already exists in our database,try another one", 400));
+      }
+      user.email = email;
+    }
+
+    if (name) {
+      user.name = name;
+    }
+
+    await user.save();
+
+    // Update Cache
+    await redis.set(userId, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
