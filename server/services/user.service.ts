@@ -3,6 +3,10 @@ import { Response } from "express";
 import userModel from "../models/user.model.js";
 
 export const getUserById = async (id: string) => {
-  const user = await userModel.findById(id);
-  return user;
+  const userJSON= await redis.get(id) ;
+  if(userJSON){
+     const user = JSON.parse(userJSON || '{}');
+     return user;
+  }
+  return null;
 };
