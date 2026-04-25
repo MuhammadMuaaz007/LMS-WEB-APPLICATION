@@ -319,6 +319,7 @@ export const updatePassword=CatchAsyncError(async(req:Request,res:Response,next:
     }
     user.password=newPassword;
     await user.save();
+    await redis.set(user._id.toString(),JSON.stringify(user));
     res.status(200).json({
       success:true,
       message:"Password updated successfully",
