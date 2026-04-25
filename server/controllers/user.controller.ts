@@ -292,3 +292,40 @@ export const updateUserInfo = CatchAsyncError(async (req: Request, res: Response
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+// update password
+
+interface IUpdatePassword{
+  oldPassword:string;
+  newPassword:string;
+}
+
+export const updatePassword=CatchAsyncError(async(req:Request,res:Response,next:NextFunction)=>{
+  try {
+    const {oldPassword,newPassword}=req.body as IUpdatePassword || {};
+    const user=await userModel.findById(req.user?._id).select("+password");
+    if(!user){
+      return next(new ErrorHandler("User not found",404));
+    }
+    if(!oldPassword || !newPassword){
+      return next(new ErrorHandler("Please enter old password and new password",400));
+    }
+    if(user?.password==undefined){
+      return next(new ErrorHandler("Invalid User",400));
+    }
+    const isPasswordMatch=await user.comparePassword(oldPassword);
+    if(!isPasswordMatch){
+      return next(new ErrorHandler("Old password is incorrect",400));
+    }
+    user.password=newPassword;
+    await user.save();
+    res.status(200).json({
+      success:true,
+      message:"Password updated successfully",
+      user,
+    })
+
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
