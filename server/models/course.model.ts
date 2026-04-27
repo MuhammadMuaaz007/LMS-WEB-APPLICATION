@@ -40,7 +40,10 @@ export interface ICourse extends Document {
   description: string;
   price: number;
   estimatedPrice?: number;
-  thumbnail:Object;
+  thumbnail: {
+    public_id: string;
+    url: string;
+  };
   tags: string;
   level: string;
   demoUrl: string;
@@ -59,7 +62,6 @@ const linkSchema = new Schema<ILink>({
   title: String,
   url: String,
 });
-
 
 const commentSchema = new Schema<IComment>(
   {
@@ -118,11 +120,11 @@ const courseSchema = new Schema<ICourse>(
     },
     thumbnail: {
       public_id: {
-        require: true,
+        //require: true,
         type: String,
       },
       url: {
-        require: true,
+        //require: true,
         type: String,
       },
     },
