@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service.js";
 import CourseModel from "../models/course.model.js";
+import { redis } from "../utils/redis.js";
 
 // upload course
 export const uploadCourse = CatchAsyncError(
@@ -82,9 +83,22 @@ export const editCourse = CatchAsyncError(
 export const getSingleCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const courseId = req.params.id as string;
+      const isCourseExist = await redis.get(courseId);
+      if (isCourseExist) {
+        const course = JSON.parse(isCourseExist);
+        return res.status(200).json({
+          success: true,
+          course,
+        });
+      }
       const course = await CourseModel.findById(req.params.id).select(
-        "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
+        "-courseData.videoUrl -courseData.suggestion -courseData.question -courseData.links",
       );
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
+      await redis.set(courseId, JSON.stringify(course));
       res.status(200).json({
         success: true,
         course,
@@ -100,9 +114,18 @@ export const getSingleCourse = CatchAsyncError(
 export const getAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const isCoursesExist = await redis.get("allCourses");
+      if (isCoursesExist) {
+        const courses = JSON.parse(isCoursesExist);
+        return res.status(200).json({
+          success: true,
+          courses,
+        });
+      }
       const courses = await CourseModel.find().select(
         "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links",
       );
+      await redis.set("allCourses", JSON.stringify(courses));
       res.status(200).json({
         success: true,
         courses,
