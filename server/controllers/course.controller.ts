@@ -135,3 +135,33 @@ export const getAllCourses = CatchAsyncError(
     }
   },
 );
+
+// get course by the user
+
+export const getCourseByUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const courseId = req.params.id;
+      const userCourseList = req.user?.courses;
+      const courseExist = userCourseList?.find(
+        (course: any) => course._id.toString() === courseId,
+      );
+      if (!courseExist) {
+        return next(
+          new ErrorHandler("You are not eligible to view this course", 404),
+        );
+      }
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("Course not found in the database", 404));
+      }
+      const content = course?.courseData;
+      res.status(200).json({
+        success: true,
+        content,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  },
+);

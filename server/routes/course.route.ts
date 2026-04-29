@@ -5,6 +5,7 @@ import {
   editCourse,
   getSingleCourse,
   getAllCourses,
+  getCourseByUser,
 } from "../controllers/course.controller.js";
 const courseRouter = express.Router();
 
@@ -20,8 +21,10 @@ courseRouter.put(
   authorizeRole("admin"),
   editCourse,
 );
-
+// without purchasing course, only for preview
 courseRouter.get("/get-course/:id", getSingleCourse);
 courseRouter.get("/get-courses", getAllCourses);
+// with purchasing course, only for the user who purchased the course
+courseRouter.get("/get-course-content/:id", isAuthenticated, getCourseByUser);
 
 export default courseRouter;
