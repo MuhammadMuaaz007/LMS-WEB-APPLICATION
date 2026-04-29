@@ -7,6 +7,7 @@ import {
   getAllCourses,
   getCourseByUser,
   addQuestion,
+  addAnswer,
 } from "../controllers/course.controller.js";
 const courseRouter = express.Router();
 
@@ -28,5 +29,6 @@ courseRouter.get("/get-courses", getAllCourses);
 // with purchasing course, only for the user who purchased the course
 courseRouter.get("/get-course-content/:id", isAuthenticated, getCourseByUser);
 courseRouter.put("/add-question", isAuthenticated, addQuestion);
+courseRouter.put("/add-answer", isAuthenticated, addAnswer);
 
 export default courseRouter;
