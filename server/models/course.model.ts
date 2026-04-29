@@ -3,13 +3,13 @@ import { IUser } from "./user.model.js";
 
 // interfaces
 
-interface IComment extends Document {
+export interface IComment extends Document {
   user: IUser;
   question: string;
   questionReplies?: IComment[];
 }
 
-interface IReview extends Document {
+export interface IReview extends Document {
   user: IUser;
   rating: number;
   comment: string;
