@@ -267,10 +267,10 @@ export const addAnswer = CatchAsyncError(
           title: courseContent.title,
         };
 
-        const html = await ejs.renderFile(
-          path.join(__dirname, "../mails/question-reply.ejs"),
-          data,
-        );
+        // const html = await ejs.renderFile(
+        //   path.join(__dirname, "../mails/question-reply.ejs"),
+        //   data,
+        // );
 
         try {
           await sendMailer({
