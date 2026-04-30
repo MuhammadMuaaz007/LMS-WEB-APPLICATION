@@ -213,7 +213,6 @@ export const addQuestion = CatchAsyncError(
 );
 
 // add answers to the question
-
 interface IAddAnswerData {
   answer: string;
   courseId: string;
