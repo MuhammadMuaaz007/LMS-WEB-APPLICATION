@@ -66,7 +66,6 @@ export const editCourse = CatchAsyncError(
           url: myCloud.secure_url,
         };
       }
-
       const course = await CourseModel.findByIdAndUpdate(courseId, data, {
         new: true,
         runValidators: true,
