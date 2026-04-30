@@ -83,6 +83,7 @@ export const editCourse = CatchAsyncError(
 );
 
 // get single course
+
 export const getSingleCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
