@@ -292,3 +292,63 @@ export const addAnswer = CatchAsyncError(
     }
   },
 );
+
+// add review
+//add reviews;
+
+interface IAddReview {
+  rating: Number;
+  review: string;
+}
+
+export const addReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const courseId = req.params.id;
+      const userCourseList = req.user?.courses;
+
+      const isCourseExist = userCourseList?.find((course: any) => {
+        return course._id.toString() === courseId; // Correct method: toString()
+      });
+
+      if (!isCourseExist) {
+        return next(
+          new ErrorHandler("You are not eligible to access this course", 404),
+        );
+      }
+
+      const course = await CourseModel.findById(courseId);
+      const { rating, review } = req.body as IAddReview;
+      const newReview: any = {
+        user: req.user,
+        rating,
+        comment: review,
+      };
+
+      course?.reviews.push(newReview);
+      let sum = 0;
+      course?.reviews.forEach((rev: any) => {
+        sum = sum + rev.rating;
+      });
+
+      if (course) {
+        course.rating = sum / course.reviews.length; //rating of the course is the avg rating ;
+      }
+
+      await course?.save();
+
+      const notification = {
+        title: "New Review Received",
+        message: `${req.user?.name} has given a review in ${course?.name}`,
+      };
+
+      //create the notification.later
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (err: any) {
+      return next(new ErrorHandler(err.message, 500));
+    }
+  },
+);
