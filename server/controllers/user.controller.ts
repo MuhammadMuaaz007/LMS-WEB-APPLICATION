@@ -147,6 +147,7 @@ export const loginUser = CatchAsyncError(
       if (!isPasswordMatch) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
+
       sendToken(user, 200, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
