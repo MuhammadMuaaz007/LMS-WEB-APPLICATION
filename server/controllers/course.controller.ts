@@ -306,9 +306,9 @@ export const addReview = CatchAsyncError(
     try {
       const courseId = req.params.id;
       const userCourseList = req.user?.courses;
-
+  
       const isCourseExist = userCourseList?.find((course: any) => {
-        return course._id.toString() === courseId; // Correct method: toString()
+        return course.courseId.toString() === courseId;
       });
 
       if (!isCourseExist) {
