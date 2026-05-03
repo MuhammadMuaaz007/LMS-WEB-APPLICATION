@@ -324,19 +324,17 @@ export const addReview = CatchAsyncError(
         rating,
         comment: review,
       };
-
+      // check if the user has already given a review, if yes then update the review and rating
       course?.reviews.push(newReview);
       let sum = 0;
       course?.reviews.forEach((rev: any) => {
         sum = sum + rev.rating;
       });
-
+      // calculate the average rating and update the course rating
       if (course) {
         course.rating = sum / course.reviews.length; //rating of the course is the avg rating ;
       }
-
       await course?.save();
-
       const notification = {
         title: "New Review Received",
         message: `${req.user?.name} has given a review in ${course?.name}`,
@@ -375,6 +373,7 @@ export const addReviewReply = CatchAsyncError(
       if (!review) {
         return next(new ErrorHandler("Review not found", 404));
       }
+      // create a review reply object
       const reviewReply: any = {
         comment,
         user: req.user,
