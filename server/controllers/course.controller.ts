@@ -341,7 +341,6 @@ export const addReview = CatchAsyncError(
         title: "New Review Received",
         message: `${req.user?.name} has given a review in ${course?.name}`,
       };
-
       //create the notification.later
       res.status(200).json({
         success: true,
