@@ -385,7 +385,6 @@ export const addReviewReply = CatchAsyncError(
       }
 
       review.commentReplies?.push(reviewReply);
-
       await course?.save();
       res.status(200).json({
         success: true,
