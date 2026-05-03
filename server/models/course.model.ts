@@ -13,7 +13,7 @@ export interface IReview extends Document {
   user: IUser;
   rating: number;
   comment: string;
-  commentReplies?: IComment[];
+  commentReplies?: Object[];
 }
 // external link interface like for github / docs ets
 
@@ -80,7 +80,7 @@ const reviewSchema = new Schema<IReview>(
       default: 0,
     },
     comment: String,
-    commentReplies: [commentSchema],
+    commentReplies: [Object],
   },
   { timestamps: true },
 );
