@@ -380,7 +380,6 @@ export const addReviewReply = CatchAsyncError(
       if (!review.commentReplies) {
         review.commentReplies = [];
       }
-
       review.commentReplies?.push(reviewReply);
       await course?.save();
       res.status(200).json({
