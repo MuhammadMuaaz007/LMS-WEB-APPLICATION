@@ -368,7 +368,6 @@ export const addReviewReply = CatchAsyncError(
       const review = course.reviews.find(
         (rev: any) => rev._id.toString() === reviewId,
       );
-
       if (!review) {
         return next(new ErrorHandler("Review not found", 404));
       }
