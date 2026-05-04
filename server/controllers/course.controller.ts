@@ -351,7 +351,6 @@ export const addReview = CatchAsyncError(
 );
 
 // add reply to the review
-
 interface iAddReplyReviewData {
   comment: string;
   courseId: string;
