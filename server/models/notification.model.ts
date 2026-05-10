@@ -13,9 +13,9 @@ const notificationSchema = new Schema<INotification>(
       type: String,
       required: true,
     },
-    userId: {
-      type: String,
-      required: true,
+    userId:{
+      type:String,
+      required:true,
     },
     message: {
       type: String,

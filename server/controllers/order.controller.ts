@@ -5,6 +5,8 @@ import { Request, Response, NextFunction } from "express";
 import userModel from "../models/user.model.js";
 import CourseModel from "../models/course.model.js";
 import { newOrder } from "../services/order.service.js";
+import sendMailer from "../utils/sendmail.js";
+import NotificationModel from "../models/notification.model.js";
 
 // create order
 export const createOrder = CatchAsyncError(
@@ -26,12 +28,13 @@ export const createOrder = CatchAsyncError(
       const data: any = {
         courseId: courseId,
         userId: user?._id,
+        payment_info,
       };
-      newOrder(data, res, next);
+      await newOrder(data, res, next);
 
       const mailData = {
         order: {
-          _id: course._id.slice(0, 6),
+          _id: courseId.toString().slice(0, 6),
           name: course.name,
           price: course.price,
           date: new Date().toLocaleDateString("en-US", {
@@ -41,6 +44,32 @@ export const createOrder = CatchAsyncError(
           }),
         },
       };
+
+      try {
+        if (user) {
+          await sendMailer({
+            email: user.email,
+            subject: "Order Confirmation",
+            template: "order-confirmation.ejs",
+            data: mailData,
+          });
+        }
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+      user?.courses.push(courseId);
+      await user?.save();
+
+      await NotificationModel.create({
+        userId: user?._id.toString(),
+        title: "New Order",
+        message: `You have successfully purchased the course ${course.name}`,
+      });
+
+      res.status(200).json({
+        success: true,
+        order: course,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }

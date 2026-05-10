@@ -6,6 +6,6 @@ import OrderModel from "../models/order.model.js";
 export const newOrder = CatchAsyncError(
   async (data: any, next: NextFunction) => {
     const order = await OrderModel.create(data);
-    next(order);
+    return order;
   },
 );
