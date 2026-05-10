@@ -30,7 +30,6 @@ export const createOrder = CatchAsyncError(
         userId: user?._id,
         payment_info,
       };
-      await newOrder(data, res, next);
 
       const mailData = {
         order: {
@@ -58,7 +57,6 @@ export const createOrder = CatchAsyncError(
         return next(new ErrorHandler(error.message, 500));
       }
       user?.courses.push(courseId);
-      await user?.save();
 
       await NotificationModel.create({
         userId: user?._id.toString(),
@@ -66,10 +64,11 @@ export const createOrder = CatchAsyncError(
         message: `You have successfully purchased the course ${course.name}`,
       });
 
-      res.status(200).json({
-        success: true,
-        order: course,
-      });
+      course.purchased = (course.purchased || 0) + 1;
+
+      await user?.save();
+      await course?.save();
+      newOrder(data, res, next);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
