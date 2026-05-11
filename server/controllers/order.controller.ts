@@ -63,7 +63,6 @@ export const createOrder = CatchAsyncError(
         title: "New Order",
         message: `You have successfully purchased the course ${course.name}`,
       });
-
       course.purchased = (course.purchased || 0) + 1;
       await user?.save();
       await course?.save();
