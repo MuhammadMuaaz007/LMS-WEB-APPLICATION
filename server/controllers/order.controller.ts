@@ -57,7 +57,6 @@ export const createOrder = CatchAsyncError(
         return next(new ErrorHandler(error.message, 500));
       }
       user?.courses.push(courseId);
-
       await NotificationModel.create({
         userId: user?._id.toString(),
         title: "New Order",
