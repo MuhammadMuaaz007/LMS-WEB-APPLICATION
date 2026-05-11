@@ -65,7 +65,6 @@ export const createOrder = CatchAsyncError(
       });
 
       course.purchased = (course.purchased || 0) + 1;
-
       await user?.save();
       await course?.save();
       newOrder(data, res, next);
