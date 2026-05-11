@@ -43,7 +43,6 @@ export const createOrder = CatchAsyncError(
           }),
         },
       };
-
       try {
         if (user) {
           await sendMailer({
