@@ -24,13 +24,11 @@ export const createOrder = CatchAsyncError(
       if (!course) {
         return next(new ErrorHandler("Course not found", 404));
       }
-
       const data: any = {
         courseId: courseId,
         userId: user?._id,
         payment_info,
       };
-
       const mailData = {
         order: {
           _id: courseId.toString().slice(0, 6),
