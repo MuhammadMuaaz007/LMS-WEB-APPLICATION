@@ -310,13 +310,11 @@ export const addReview = CatchAsyncError(
       const isCourseExist = userCourseList?.find((course: any) => {
         return course._id.toString() === courseId;
       });
-
       if (!isCourseExist) {
         return next(
           new ErrorHandler("You are not eligible to access this course", 404),
         );
       }
-
       const course = await CourseModel.findById(courseId);
       const { rating, review } = req.body as IAddReview;
       const newReview: any = {
