@@ -2,6 +2,7 @@ import NotificationModel from "../models/notification.model.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { Request, Response, NextFunction } from "express";
+import notificationModel from "../models/notification.model.js";
 
 // get all notification -- only for the admin
 // not for the user because the user will get only its notification not all notification from the database
@@ -17,6 +18,32 @@ export const getNotifications = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
+    }
+  },
+);
+
+// update the status of the notification
+
+export const updateNotificationStatus = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const notification = await notificationModel.findById(req.params.id);
+      if (!notification) {
+        return next(new ErrorHandler("Notification not found", 400));
+      } else {
+        await notificationModel.findByIdAndUpdate(req.params.id, {
+          status: "read",
+        });
+      }
+      const notifications = await notificationModel
+        .find()
+        .sort({ createdAt: -1 });
+      res.status(201).json({
+        success: true,
+        notifications,
+      });
+    } catch (err: any) {
+      return next(new ErrorHandler(err.message, 400));
     }
   },
 );
