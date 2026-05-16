@@ -1,13 +1,14 @@
 import express from "express";
-import { authorizeRole } from "../middleware/auth.js";
+import { authorizeRole, isAuthenticated } from "../middleware/auth.js";
 import { getNotifications } from "../controllers/notification.controller.js";
 
-const notificationRouter = express.Router();
+const notificationRoute = express.Router();
 
-notificationRouter.get(
-  "/get-notifications",
+notificationRoute.get(
+  "/get-all-notifications",
+  isAuthenticated,
   authorizeRole("admin"),
   getNotifications,
 );
 
-export default notificationRouter;
+export default notificationRoute;

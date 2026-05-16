@@ -7,6 +7,7 @@ import userRouter from "./routes/user.route.js";
 import ErrorMiddleware from "./middleware/error.js";
 import courseRouter from "./routes/course.route.js";
 import orderRouter from "./routes/order.route.js";
+import notificationRoute from "./routes/notification.route.js";
 
 dotenv.config();
 export const app = express();
@@ -21,7 +22,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use("/api/v1", userRouter, courseRouter, orderRouter);
+app.use("/api/v1", userRouter, courseRouter, orderRouter, notificationRoute);
 
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;

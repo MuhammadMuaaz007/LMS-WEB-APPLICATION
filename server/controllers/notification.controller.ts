@@ -8,9 +8,9 @@ import { Request, Response, NextFunction } from "express";
 export const getNotifications = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const notifications = await NotificationModel.find({
-        userId: req.user?._id,
-      }).sort({ createdAt: -1 });
+      const notifications = await NotificationModel.find({}).sort({
+        createdAt: -1,
+      });
       res.status(200).json({
         success: true,
         notifications,
@@ -20,5 +20,3 @@ export const getNotifications = CatchAsyncError(
     }
   },
 );
-
-
