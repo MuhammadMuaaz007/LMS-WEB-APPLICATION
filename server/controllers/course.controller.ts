@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import path from "path";
 import ejs from "ejs";
 import sendMailer from "../utils/sendmail.js";
+import NotificationModel from "../models/notification.model.js";
 // upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -201,6 +202,12 @@ export const addQuestion = CatchAsyncError(
       };
 
       content.question.push(newQuestion);
+      await NotificationModel.create({
+        userId: req.user?._id.toString(),
+        title: "New Question Received",
+        message: `You have a new question in the course ${content?.title}`,
+      });
+
       await course?.save();
       res.status(200).json({
         success: true,
@@ -259,7 +266,11 @@ export const addAnswer = CatchAsyncError(
       await course?.save();
 
       if (req.user?._id === question.user._id) {
-        // create a notification
+          await NotificationModel.create({
+            userId: req.user?._id.toString(),
+            title: "New Question Reply Received",
+            message: `You have a new question reply in the course ${courseContent?.title}`,
+          });
       } else {
         const data = {
           name: question.user.name,
@@ -322,22 +333,23 @@ export const addReview = CatchAsyncError(
         rating,
         comment: review,
       };
-      // check if the user has already given a review, if yes then update the review and rating
+
       course?.reviews.push(newReview);
       let sum = 0;
       course?.reviews.forEach((rev: any) => {
         sum = sum + rev.rating;
       });
-      // calculate the average rating and update the course rating
+     
       if (course) {
-        course.rating = sum / course.reviews.length; //rating of the course is the avg rating ;
+        course.rating = sum / course.reviews.length; 
       }
       await course?.save();
-      const notification = {
-        title: "New Review Received",
-        message: `${req.user?.name} has given a review in ${course?.name}`,
-      };
-      //create the notification.later when  the notificattion model will be created and the implemented all of its controllers
+      // const notification = {
+      //   title: "New Review Received",
+      //   message: `${req.user?.name} has given a review in ${course?.name}`,
+      // };
+      // await NotificationModel.create(notification);
+      
       res.status(200).json({
         success: true,
         course,
@@ -348,7 +360,7 @@ export const addReview = CatchAsyncError(
   },
 );
 
-// add reply to the review controller and the interface for the request body
+
 interface iAddReplyReviewData {
   comment: string;
   courseId: string;
