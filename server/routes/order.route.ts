@@ -6,6 +6,11 @@ const orderRouter = express.Router();
 
 orderRouter.post("/create-order", isAuthenticated, createOrder);
 
-orderRouter.get("/get-orders", isAuthenticated,authorizeRole("admin"), getAllOrders);
+orderRouter.get(
+  "/get-all-orders",
+  isAuthenticated,
+  authorizeRole("admin"),
+  getAllOrders,
+);
 
 export default orderRouter;
