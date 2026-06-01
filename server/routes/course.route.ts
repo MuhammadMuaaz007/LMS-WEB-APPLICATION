@@ -11,6 +11,7 @@ import {
   addReview,
   addReviewReply,
   getAllCoursesAdmin,
+  deleteCourse,
 } from "../controllers/course.controller.js";
 const courseRouter = express.Router();
 
@@ -54,5 +55,11 @@ courseRouter.get(
   getAllCoursesAdmin,
 );
 
+courseRouter.delete(
+  "/delete-course/:id",
+  isAuthenticated,
+  authorizeRole("admin"),
+  deleteCourse,
+);
 
 export default courseRouter;
