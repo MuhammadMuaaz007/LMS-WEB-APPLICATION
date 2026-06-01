@@ -13,7 +13,7 @@ import {
   sendToken,
 } from "../utils/jwt.js";
 import { redis } from "../utils/redis.js";
-import { getUserById } from "../services/user.service.js";
+import { getAllUsersService, getUserById } from "../services/user.service.js";
 import ts from "typescript";
 dotenv.config();
 
@@ -400,6 +400,17 @@ export const updateProfilePicture = CatchAsyncError(
         success: true,
         user,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  },
+);
+
+// get all users -- only for admin
+export const getAllUsers = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllUsersService(res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
