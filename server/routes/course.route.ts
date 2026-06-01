@@ -10,6 +10,7 @@ import {
   addAnswer,
   addReview,
   addReviewReply,
+  getAllCoursesAdmin,
 } from "../controllers/course.controller.js";
 const courseRouter = express.Router();
 
@@ -27,17 +28,31 @@ courseRouter.put(
 );
 // without purchasing course, only for preview
 courseRouter.get("/get-course/:id", getSingleCourse);
+
 courseRouter.get("/get-courses", getAllCourses);
+
 // with purchasing course, only for the user who purchased the course
 courseRouter.get("/get-course-content/:id", isAuthenticated, getCourseByUser);
+
 courseRouter.put("/add-question", isAuthenticated, addQuestion);
+
 courseRouter.put("/add-answer", isAuthenticated, addAnswer);
+
 courseRouter.put("/add-review/:id", isAuthenticated, addReview);
+
 courseRouter.put(
   "/add-reply",
   isAuthenticated,
   authorizeRole("admin"),
   addReviewReply,
 );
+
+courseRouter.get(
+  "/get-all-courses",
+  isAuthenticated,
+  authorizeRole("admin"),
+  getAllCoursesAdmin,
+);
+
 
 export default courseRouter;

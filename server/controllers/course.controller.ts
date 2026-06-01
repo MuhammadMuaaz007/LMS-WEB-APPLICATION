@@ -2,7 +2,10 @@ import express, { Request, Response, NextFunction } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.service.js";
+import {
+  createCourse,
+  getAllCoursesService,
+} from "../services/course.service.js";
 import CourseModel, { IComment } from "../models/course.model.js";
 import { redis } from "../utils/redis.js";
 import mongoose from "mongoose";
@@ -266,11 +269,11 @@ export const addAnswer = CatchAsyncError(
       await course?.save();
 
       if (req.user?._id === question.user._id) {
-          await NotificationModel.create({
-            userId: req.user?._id.toString(),
-            title: "New Question Reply Received",
-            message: `You have a new question reply in the course ${courseContent?.title}`,
-          });
+        await NotificationModel.create({
+          userId: req.user?._id.toString(),
+          title: "New Question Reply Received",
+          message: `You have a new question reply in the course ${courseContent?.title}`,
+        });
       } else {
         const data = {
           name: question.user.name,
@@ -339,9 +342,9 @@ export const addReview = CatchAsyncError(
       course?.reviews.forEach((rev: any) => {
         sum = sum + rev.rating;
       });
-     
+
       if (course) {
-        course.rating = sum / course.reviews.length; 
+        course.rating = sum / course.reviews.length;
       }
       await course?.save();
       // const notification = {
@@ -349,7 +352,7 @@ export const addReview = CatchAsyncError(
       //   message: `${req.user?.name} has given a review in ${course?.name}`,
       // };
       // await NotificationModel.create(notification);
-      
+
       res.status(200).json({
         success: true,
         course,
@@ -359,7 +362,6 @@ export const addReview = CatchAsyncError(
     }
   },
 );
-
 
 interface iAddReplyReviewData {
   comment: string;
@@ -397,6 +399,17 @@ export const addReviewReply = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
+    }
+  },
+);
+
+// get all courses -- only for admin
+export const getAllCoursesAdmin = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllCoursesService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
     }
   },
 );
