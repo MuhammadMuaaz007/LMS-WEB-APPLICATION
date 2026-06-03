@@ -116,7 +116,7 @@ export const getSingleCourse = CatchAsyncError(
   },
 );
 
-// get all courses without purchasing
+
 
 export const getAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
