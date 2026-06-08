@@ -3,11 +3,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "./utils/theme-provider";
-import {Josefin_Sans} from "next/font/google";
+import { Josefin_Sans } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "SKILLSTACK",
-  description: "SKILLSTACK is a platform for learning and practicing programming skills",
+  description:
+    "SKILLSTACK is a platform for learning and practicing programming skills",
   keywords: "React,Nextjs,Programming,Redux,Machine Learning,Nodejs,MERN",
 };
 
@@ -26,13 +27,17 @@ const josefin = Josefin_Sans({
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${poppins.variable} ${josefin.variable}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>{children}</ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${poppins.variable} ${josefin.variable} !bg-white bg-no-repeat dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
