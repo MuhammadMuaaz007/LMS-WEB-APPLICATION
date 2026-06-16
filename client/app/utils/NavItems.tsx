@@ -1,34 +1,24 @@
 import React, { FC } from "react";
 import Link from "next/link";
+
 export const navItemsData = [
-  {
-    name: "Home",
-    url: "/",
-  },
-  {
-    name: "Courses",
-    url: "/courses",
-  },
-  {
-    name: "About",
-    url: "/about",
-  },
-  {
-    name: "Policy",
-    url: "/policy",
-  },
-  {
-    name: "FAQ",
-    url: "/faq",
-  },
+  { name: "Home", url: "/" },
+  { name: "Courses", url: "/courses" },
+  { name: "About", url: "/about" },
+  { name: "Policy", url: "/policy" },
+  { name: "FAQ", url: "/faq" },
 ];
+
 type Props = {
   activeItem: number;
   isMobile: boolean;
+  setOpen: (open: boolean) => void;
 };
-const NavItems: FC<Props> = ({ activeItem, isMobile }) => {
+
+const NavItems: FC<Props> = ({ activeItem, isMobile, setOpen }) => {
   return (
     <>
+      {/* Desktop Navigation */}
       <div className="hidden min-[800px]:flex">
         {navItemsData &&
           navItemsData.map((item, index) => (
@@ -45,10 +35,12 @@ const NavItems: FC<Props> = ({ activeItem, isMobile }) => {
             </Link>
           ))}
       </div>
+
+      {/* Mobile Sidebar */}
       {isMobile && (
         <div className="min-[800px]:hidden mt-5">
           <div className="w-full text-center py-6">
-            <Link href={"/"} passHref>
+            <Link href={"/"} passHref onClick={() => setOpen(false)}>
               <span
                 className={`text-[25px] font-Poppins font-medium text-black dark:text-white`}
               >
@@ -56,9 +48,15 @@ const NavItems: FC<Props> = ({ activeItem, isMobile }) => {
               </span>
             </Link>
           </div>
+
           {navItemsData &&
             navItemsData.map((i, index) => (
-              <Link href="/" passHref key={index}>
+              <Link
+                href={i.url}
+                passHref
+                key={index}
+                onClick={() => setOpen(false)}
+              >
                 <span
                   className={`${
                     activeItem === index
