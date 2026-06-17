@@ -1,10 +1,11 @@
 "use client";
 
-import { type FC, useRef, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { type FC, useRef, useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
+import { useActivationMutation } from "../../../redux/features/auth/authApi";
+import { useSelector } from "react-redux";
 
-// Mock styles object for easy customization
 const styles = {
   title: "text-2xl font-bold font-Poppins text-black dark:text-white",
   button:
@@ -25,6 +26,8 @@ type VerifyNumber = {
 const Verification: FC<Props> = ({ setRoute }) => {
   const [invalidError, setInvalidError] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const { token } = useSelector((state: any) => state.auth);
+  const [activation, { isSuccess, error }] = useActivationMutation();
 
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -40,7 +43,7 @@ const Verification: FC<Props> = ({ setRoute }) => {
     3: "",
   });
 
-  const verifyHandler = () => {
+  const verifyHandler = async () => {
     const verificationNumber = Object.values(verifyNumber).join("");
 
     if (verificationNumber.length !== 4) {
@@ -48,10 +51,10 @@ const Verification: FC<Props> = ({ setRoute }) => {
       toast.error("Please enter a complete 4-digit code");
       return;
     }
-    toast.success("OTP Verified Successfully!");
-    setVerificationSuccess(true);
-
-    console.log("Submitted OTP:", verificationNumber);
+    await activation({
+      activation_token: token,
+      activation_code: verificationNumber,
+    });
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -66,10 +69,26 @@ const Verification: FC<Props> = ({ setRoute }) => {
       inputRefs[index + 1].current?.focus();
     }
   };
-
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Account activated successfully!");
+      setRoute("Login");
+    }
+    if (error) {
+      if ("data" in error) {
+        const errorData = error.data as any;
+        toast.error(
+          errorData.message || "Activation failed. Please try again.",
+        );
+        setInvalidError(true);
+      } else {
+        console.log("Activation error:", error);
+      }
+    }
+  }, [isSuccess, error, setRoute]);
   return (
     <div>
-      <Toaster position="top-center" reverseOrder={false} />
+      {/* REMOVED LOCAL <Toaster /> TO PREVENT TOAST DUPLICATION & FREEZING */}
       <h1 className={`${styles.title} text-center`}>Verify your account</h1>
 
       {verificationSuccess ? (
@@ -84,7 +103,7 @@ const Verification: FC<Props> = ({ setRoute }) => {
       <div className="mt-10 flex items-center justify-center gap-4 max-w-sm mx-auto">
         {Object.keys(verifyNumber).map((key, index) => (
           <input
-            type="number"
+            type="text"
             placeholder="*"
             pattern="\d*"
             inputMode="numeric"

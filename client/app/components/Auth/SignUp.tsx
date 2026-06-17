@@ -1,5 +1,6 @@
+"use client";
+
 import React, { FC, useState } from "react";
-// or standard 'formik' depending on your build
 import { useFormik as useFormikActual } from "formik";
 import * as Yup from "yup";
 import {
@@ -9,13 +10,14 @@ import {
   AiOutlineClose,
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
+import { useRegisterMutation } from "../../../redux/features/auth/authApi";
+import { toast } from "react-hot-toast";
 
 type Props = {
   setRoute: (route: string) => void;
   setOpen: (open: boolean) => void;
 };
 
-// Updated schema for registration
 const scheme = Yup.object().shape({
   name: Yup.string()
     .required("Please enter your name")
@@ -31,14 +33,24 @@ const scheme = Yup.object().shape({
 
 const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
   const [show, setShow] = useState(false);
+  const [register, { isLoading }] = useRegisterMutation();
 
   const formik = useFormikActual({
     initialValues: { name: "", email: "", password: "" },
     validationSchema: scheme,
     onSubmit: async ({ name, email, password }) => {
-      console.log(name, email, password);
-
-      setRoute("Verification");
+      try {
+        const data = {
+          name,
+          email,
+          password,
+        };
+        await register(data);
+        toast.success("Registration successful! Please check your email to activate your account.");
+        setRoute("Verification");
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Registration Failed");
+      }
     },
   });
 
@@ -74,12 +86,12 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
             type="text"
             name="name"
             id="name"
-            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors
-              ${
-                errors.name && touched.name
-                  ? "border-red-500 focus:border-red-500"
-                  : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
-              }`}
+            disabled={isLoading}
+            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors ${
+              errors.name && touched.name
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
+            }`}
             value={values.name}
             placeholder="John Doe"
             onChange={handleChange}
@@ -104,12 +116,12 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
             type="email"
             name="email"
             id="email"
-            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors
-              ${
-                errors.email && touched.email
-                  ? "border-red-500 focus:border-red-500"
-                  : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
-              }`}
+            disabled={isLoading}
+            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors ${
+              errors.email && touched.email
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
+            }`}
             value={values.email}
             placeholder="loginmail@gmail.com"
             onChange={handleChange}
@@ -135,12 +147,12 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
               type={show ? "text" : "password"}
               name="password"
               id="password"
-              className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] pl-3 pr-10 outline-none font-Poppins transition-colors
-                ${
-                  errors.password && touched.password
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
-                }`}
+              disabled={isLoading}
+              className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] pl-3 pr-10 outline-none font-Poppins transition-colors ${
+                errors.password && touched.password
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
+              }`}
               value={values.password}
               placeholder="********"
               onChange={handleChange}
@@ -148,7 +160,7 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
-              onClick={() => setShow((prev) => !prev)}
+              onClick={() => !isLoading && setShow((prev) => !prev)}
             >
               {show ? (
                 <AiOutlineEyeInvisible size={20} />
@@ -164,11 +176,17 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
           )}
         </div>
 
+        {/* Submit button with loading feedback spinner */}
         <button
           type="submit"
-          className="w-full h-[44px] bg-blue-600 hover:bg-blue-700 text-white font-Poppins font-[500] rounded-lg transition-all transform active:scale-[0.99] mt-2 shadow-sm"
+          disabled={isLoading}
+          className="w-full h-[44px] bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-Poppins font-[500] rounded-lg transition-all transform active:scale-[0.99] mt-2 shadow-sm flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
         >
-          Sign Up
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            "Sign Up"
+          )}
         </button>
       </form>
 
@@ -183,10 +201,16 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
 
       {/* Social Buttons */}
       <div className="flex items-center justify-center gap-4">
-        <button className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
+        <button
+          disabled={isLoading}
+          className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors disabled:opacity-50"
+        >
           <FcGoogle size={22} />
         </button>
-        <button className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg text-slate-900 dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
+        <button
+          disabled={isLoading}
+          className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg text-slate-900 dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors disabled:opacity-50"
+        >
           <AiFillGithub size={22} />
         </button>
       </div>
@@ -195,7 +219,7 @@ const SignUp: FC<Props> = ({ setRoute, setOpen }) => {
       <p className="text-center text-sm font-Poppins text-slate-500 dark:text-slate-400 mt-6">
         Already have an account?{" "}
         <span
-          onClick={() => setRoute("Login")}
+          onClick={() => !isLoading && setRoute("Login")}
           className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline font-[500]"
         >
           Sign in
