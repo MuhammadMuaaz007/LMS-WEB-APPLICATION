@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: process.env.ORIGIN,
+    origin: "http://localhost:3000",
     credentials: true,
   }),
 );
@@ -31,7 +31,7 @@ app.use(
   orderRouter,
   notificationRoute,
   analyticsRouter,
-  layoutRouter
+  layoutRouter,
 );
 
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
