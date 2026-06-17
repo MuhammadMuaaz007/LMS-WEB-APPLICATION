@@ -1,5 +1,5 @@
 import { apiSlice } from "../api/apiSlice";
-import { userRegistration, userLoggedIn, userLoggedOut } from "./authSlice";
+import { userRegistration, userLoggedIn } from "./authSlice";
 
 type RegistrationResponse = {
   message: string;
@@ -7,10 +7,10 @@ type RegistrationResponse = {
   user: any;
 };
 
-type ActivationData = {
-  activation_token: string;
-  activation_code: string;
-};
+// type ActivationData = {
+//   activation_token: string;
+//   activation_code: string;
+// };
 
 type RegistrationData = {};
 
@@ -47,7 +47,33 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include" as const,
       }),
     }),
+
+    login: builder.mutation({
+      query: ({ email, password }) => ({
+        url: "login",
+        method: "POST",
+        body: {
+          email,
+          password,
+        },
+        credentials: "include" as const,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const result = await queryFulfilled;
+          dispatch(
+            userLoggedIn({
+              accessToken: result.data.accessToken,
+              user: result.data.user,
+            }),
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    }),
   }),
 });
 
-export const { useRegisterMutation, useActivationMutation } = authApi;
+export const { useRegisterMutation, useActivationMutation, useLoginMutation } =
+  authApi;

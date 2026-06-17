@@ -1,3 +1,5 @@
+"use client";
+
 import React, { FC, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -5,13 +7,15 @@ import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
   AiFillGithub,
-  AiOutlineClose, // Imported close icon
+  AiOutlineClose,
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { toast } from "react-hot-toast"; // Swapped to hot-toast for consistency across forms
 
 type Props = {
   setRoute: (route: string) => void;
-  setOpen: (open: boolean) => void; 
+  setOpen: (open: boolean) => void;
 };
 
 const scheme = Yup.object().shape({
@@ -26,22 +30,27 @@ const scheme = Yup.object().shape({
 
 const Login: FC<Props> = ({ setRoute, setOpen }) => {
   const [show, setShow] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
     validationSchema: scheme,
     onSubmit: async ({ email, password }) => {
-      console.log(email, password);
-      setOpen(false);
+      try {
+        await login({ email, password }).unwrap();
+        toast.success("Login successful!");
+        setOpen(false);
+      } catch (err: any) {
+        toast.error(err?.data?.message || "Login failed!");
+      }
     },
   });
 
-  const { errors, touched, values, handleChange, handleBlur, handleSubmit } = formik;
+  const { errors, touched, values, handleChange, handleBlur, handleSubmit } =
+    formik;
 
   return (
-
     <div className="relative w-full max-w-md mx-auto p-6 bg-transparent rounded-2xl border border-gray-300/40 dark:border-slate-700/40 shadow-sm transition-colors duration-300">
-  
       <button
         type="button"
         onClick={() => setOpen(false)}
@@ -54,8 +63,9 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
       <h1 className="text-[25px] text-slate-800 dark:text-white font-[600] font-Poppins text-center pb-6 pr-6">
         Login with SkilStack
       </h1>
-      
+
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Email Input */}
         <div>
           <label
             htmlFor="email"
@@ -67,11 +77,12 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
             type="email"
             name="email"
             id="email"
-            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors
-              ${errors.email && touched.email 
-                ? "border-red-500 focus:border-red-500" 
+            disabled={isLoading}
+            className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] px-3 outline-none font-Poppins transition-colors ${
+              errors.email && touched.email
+                ? "border-red-500 focus:border-red-500"
                 : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
-              }`}
+            }`}
             value={values.email}
             placeholder="loginmail@gmail.com"
             onChange={handleChange}
@@ -84,7 +95,7 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
           )}
         </div>
 
-
+        {/* Password Input */}
         <div>
           <label
             htmlFor="password"
@@ -97,11 +108,12 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
               type={show ? "text" : "password"}
               name="password"
               id="password"
-              className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] pl-3 pr-10 outline-none font-Poppins transition-colors
-                ${errors.password && touched.password 
-                  ? "border-red-500 focus:border-red-500" 
+              disabled={isLoading}
+              className={`w-full text-slate-900 dark:text-white bg-transparent border rounded-lg h-[44px] pl-3 pr-10 outline-none font-Poppins transition-colors ${
+                errors.password && touched.password
+                  ? "border-red-500 focus:border-red-500"
                   : "border-gray-300 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400"
-                }`}
+              }`}
               value={values.password}
               placeholder="********"
               onChange={handleChange}
@@ -109,9 +121,13 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
             />
             <div
               className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200"
-              onClick={() => setShow((prev) => !prev)}
+              onClick={() => !isLoading && setShow((prev) => !prev)}
             >
-              {show ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              {show ? (
+                <AiOutlineEyeInvisible size={20} />
+              ) : (
+                <AiOutlineEye size={20} />
+              )}
             </div>
           </div>
           {errors.password && touched.password && (
@@ -121,36 +137,49 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
           )}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button with Spinner */}
         <button
           type="submit"
-          className="w-full h-[44px] bg-blue-600 hover:bg-blue-700 text-white font-Poppins font-[500] rounded-lg transition-all transform active:scale-[0.99] mt-2 shadow-sm"
+          disabled={isLoading}
+          className="w-full h-[44px] bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-Poppins font-[500] rounded-lg transition-all transform active:scale-[0.99] mt-2 shadow-sm flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
         >
-          Login
+          {isLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
 
       <div className="relative flex py-5 items-center">
         <div className="flex-grow border-t border-gray-300/40 dark:border-slate-700/40"></div>
-        <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-sm font-Poppins">Or join with</span>
+        <span className="flex-shrink mx-4 text-slate-400 dark:text-slate-500 text-sm font-Poppins">
+          Or join with
+        </span>
         <div className="flex-grow border-t border-gray-300/40 dark:border-slate-700/40"></div>
       </div>
 
       {/* Social Buttons */}
       <div className="flex items-center justify-center gap-4">
-        <button  className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
+        <button
+          disabled={isLoading}
+          className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors disabled:opacity-50"
+        >
           <FcGoogle size={22} />
         </button>
-        <button className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg text-slate-900 dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
+        <button
+          disabled={isLoading}
+          className="flex items-center justify-center w-full h-[44px] border border-gray-300/60 dark:border-slate-700/60 rounded-lg text-slate-900 dark:text-white hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors disabled:opacity-50"
+        >
           <AiFillGithub size={22} />
         </button>
       </div>
-      
+
       {/* Sign Up Redirect Link */}
       <p className="text-center text-sm font-Poppins text-slate-500 dark:text-slate-400 mt-6">
         Not a member?{" "}
-        <span 
-          onClick={() => setRoute("SignUp")} 
+        <span
+          onClick={() => !isLoading && setRoute("SignUp")}
           className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline font-[500]"
         >
           Sign up now
