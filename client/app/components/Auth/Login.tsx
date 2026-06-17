@@ -11,7 +11,7 @@ import {
 } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
-import { toast } from "react-hot-toast"; // Swapped to hot-toast for consistency across forms
+import { toast } from "react-hot-toast";
 
 type Props = {
   setRoute: (route: string) => void;
