@@ -34,6 +34,21 @@ body {
   animation: changeBackgroundColor 8s infinite alternate;
 }
 
+/* Add this to your global CSS file */
+@layer utilities {
+  /* Chrome, Safari, Edge, Opera */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+}
+
 @keyframes changeBackgroundColor {
   0%, 100% {
     opacity: 1;
