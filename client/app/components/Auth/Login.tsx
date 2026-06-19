@@ -18,7 +18,7 @@ type Props = {
   setOpen: (open: boolean) => void;
 };
 
-const scheme = Yup.object().shape({
+const schema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email")
     .required("Please enter your email"),
@@ -34,7 +34,7 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
-    validationSchema: scheme,
+    validationSchema: schema,
     onSubmit: async ({ email, password }) => {
       try {
         await login({ email, password }).unwrap();

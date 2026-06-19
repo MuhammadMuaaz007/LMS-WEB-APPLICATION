@@ -29,6 +29,7 @@ export const authApi = apiSlice.injectEndpoints({
           dispatch(
             userRegistration({
               token: result.data.activationToken,
+              user: result.data.user,
             }),
           );
         } catch (error) {
@@ -36,6 +37,7 @@ export const authApi = apiSlice.injectEndpoints({
         }
       },
     }),
+
     activation: builder.mutation({
       query: ({ activation_token, activation_code }) => ({
         url: "activate-user",
