@@ -8,6 +8,9 @@ import CustomModal from "../utils/CustomModal";
 import Login from "../components/Auth/Login";
 import SignUp from "../components/Auth/SignUp";
 import Verification from "../components/Auth/Verification";
+import { useSelector } from "react-redux";
+import Image from "next/image";
+import avatar from "../../public/assets/avatar.png";
 
 type Props = {
   open: boolean;
@@ -19,6 +22,7 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const [active, setActive] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,11 +74,26 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
                   onClick={() => setOpenSidebar(true)}
                 />
               </div>
-              <HiOutlineUserCircle
-                size={25}
-                className="hidden min-[800px]:block cursor-pointer dark:text-white text-black"
-                onClick={() => setOpen(true)}
-              />
+              {user ? (
+                <Link href={"/profile"}>
+                  <Image
+                    src={user.avatar ? user.avatar.url : avatar}
+                    alt=""
+                    width={30}
+                    height={30}
+                    className="w-[30px] h-[30px] rounded-full cursor-pointer"
+                    style={{
+                      border: activeItem === 5 ? "2px solid #37a39a" : "none",
+                    }}
+                  />
+                </Link>
+              ) : (
+                <HiOutlineUserCircle
+                  size={25}
+                  className="hidden 800px:block cursor-pointer dark:text-white text-black"
+                  onClick={() => setOpen(true)}
+                />
+              )}
             </div>
           </div>
         </div>
