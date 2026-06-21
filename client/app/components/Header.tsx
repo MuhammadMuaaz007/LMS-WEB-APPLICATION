@@ -50,7 +50,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // mount/unmount sidebar with a frame delay so the enter transition plays
   useEffect(() => {
     if (openSidebar) {
       const id = requestAnimationFrame(() => setSidebarVisible(true));
