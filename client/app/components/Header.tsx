@@ -11,7 +11,10 @@ import Verification from "../components/Auth/Verification";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import avatar from "../../public/assets/avatar.png";
-import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import {
+  useLogoutQuery,
+  useSocialAuthMutation,
+} from "@/redux/features/auth/authApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -29,7 +32,11 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
+  const [logout, setLogout] = useState(false);
   const { data } = useSession();
+  const {} = useLogoutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
 
   const { isLoading: userLoading, data: loadUserData } = useLoadUserQuery(
     undefined,
@@ -81,10 +88,13 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         avatar: data.user?.image as string,
       });
     }
+    if (data === null && isSuccess && !user) {
+      setLogout(true);
+    }
   }, [data, user, userLoading, loadUserData, socialAuth]);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && data === null) {
       toast.success("login successfully");
     }
   }, [isSuccess]);

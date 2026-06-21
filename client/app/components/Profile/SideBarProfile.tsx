@@ -16,7 +16,7 @@ type UserType = {
 };
 
 type Props = {
-  user: UserType;
+  user: any;
   active: number;
   avatar: string | null;
   setActive: (active: number) => void;
@@ -32,10 +32,10 @@ const SideBarProfile = ({
 }: Props) => {
   const tabClass = (id: number) => `
     w-full flex flex-row items-center justify-center min-[800px]:justify-start 
-    h-[44px] min-[800px]:px-4 my-1 rounded-xl cursor-pointer transition-all duration-200 select-none group
+    h-[46px] min-[800px]:px-4 my-1 rounded-xl cursor-pointer transition-all duration-200 select-none group
     ${
       active === id
-        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+        ? "bg-[#37a39a] text-white shadow-md shadow-[#37a39a]/20"
         : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100"
     }
   `;
@@ -50,13 +50,12 @@ const SideBarProfile = ({
       <div className="flex flex-col gap-1">
         {/* Account Tab */}
         <div className={tabClass(1)} onClick={() => setActive(1)}>
-          {/* This wrapper guarantees a flawless, un-squeezable circle */}
           <div
             className={`relative w-7 h-7 rounded-full overflow-hidden aspect-square flex-shrink-0 border-2 transition-colors
             ${active === 1 ? "border-white" : "border-transparent"}`}
           >
             <Image
-              src={user?.avatar?.url || avatar || avatarDefault}
+              src={user.avatar || avatar ? user?.avatar?.url : avatarDefault}
               alt="Profile Avatar"
               fill
               sizes="28px"

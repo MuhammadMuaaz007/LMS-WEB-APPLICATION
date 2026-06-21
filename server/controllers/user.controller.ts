@@ -2,11 +2,12 @@ import type { NextFunction, Request, Response } from "express"; // Add Request a
 import userModel, { IUser } from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
-import bcrypt from "bcryptjs";
+
 import jwt, { JwtPayload, type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
 import cloudinary from "cloudinary";
 import sendMailer from "../utils/sendmail.js";
+
 import {
   accessTokenOptions,
   refreshTokenOptions,
@@ -18,7 +19,7 @@ import {
   getUserById,
   updateUserRoleService,
 } from "../services/user.service.js";
-import ts from "typescript";
+
 dotenv.config();
 
 interface IRegistrationBody {
@@ -167,7 +168,7 @@ export const logoutUser = CatchAsyncError(
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
       const userID = req.user?._id || "";
-      redis.del(userID.toString());
+      await redis.del(userID.toString());
       res.status(200).json({
         success: true,
         message: "Logged out successfully",
