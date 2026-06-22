@@ -8,6 +8,7 @@ const userApi = apiSlice.injectEndpoints({
         method: "PUT",
         body: { avatar },
         credentials: "include" as const,
+        
       }),
      
     }),

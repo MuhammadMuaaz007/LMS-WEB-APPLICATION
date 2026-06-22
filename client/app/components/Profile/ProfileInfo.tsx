@@ -6,6 +6,8 @@ import { AiOutlineCamera } from "react-icons/ai";
 import avatarDefault from "../../../public/assets/avatar.png";
 import { useUpdateAvatarMutation } from "@/redux/features/user/userApi";
 import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { userLoggedIn } from "@/redux/features/auth/authSlice";
 
 type Props = {
   avatar: string;
@@ -16,8 +18,10 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
   const [name, setName] = useState(user && user.name);
   // Create a local state to hold the immediate base64 image preview
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
-  const [updateAvatar, { isSuccess, isError, isLoading }] = useUpdateAvatarMutation();
+  const [updateAvatar, { isSuccess, isError, isLoading, data: responseData }] =
+    useUpdateAvatarMutation();
 
   const imageHanlder = async (e: any) => {
     const file = e.target.files[0];
@@ -27,11 +31,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
     reader.onload = () => {
       if (reader.readyState === 2) {
         const base64Image = reader.result as string;
-        
-        // Set local preview instantly so the UI feels fast
         setImagePreview(base64Image);
-        
-        // Send to backend
         updateAvatar({ avatar: base64Image });
       }
     };
@@ -41,12 +41,20 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
   useEffect(() => {
     if (isSuccess) {
       toast.success("Avatar updated successfully");
+
+      if (responseData?.user) {
+        dispatch(
+          userLoggedIn({
+            user: responseData.user,
+          }),
+        );
+      }
     }
     if (isError) {
       toast.error("Failed to update avatar");
-      setImagePreview(null); // Reset preview on failure
+      setImagePreview(null);
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, responseData, dispatch]);
 
   // Determine fallback image source securely
   const getImageSrc = () => {

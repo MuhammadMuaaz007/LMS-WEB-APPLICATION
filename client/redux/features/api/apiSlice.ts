@@ -20,6 +20,7 @@ export const apiSlice = createApi({
         url: "me",
         method: "GET",
         credentials: "include" as const,
+        
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
