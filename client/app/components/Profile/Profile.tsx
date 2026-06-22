@@ -5,6 +5,7 @@ import ProfileInfo from "./ProfileInfo";
 import { useLogoutQuery } from "@/redux/features/auth/authApi";
 import { signOut, useSession } from "next-auth/react";
 import { Loader } from "../Loader/Loader";
+import ChangePassword from "./ChangePassword";
 
 type Props = {
   user: any;
@@ -68,7 +69,12 @@ const Profile: React.FC<Props> = ({ user }) => {
       {/* Main Content Area */}
       {active === 1 && (
         <div className="w-full flex-1 transition-all duration-300 min-[800px]:mt-0">
-          <ProfileInfo avatar={avatar} user={user}/>
+          <ProfileInfo avatar={avatar} user={user} />
+        </div>
+      )}
+      {active === 2 && (
+        <div className="w-full flex-1 transition-all duration-300 min-[800px]:mt-0">
+          <ChangePassword />
         </div>
       )}
     </div>

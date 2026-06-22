@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import React, { type FC, useEffect, useState } from "react";
+import React, { type FC, useState } from "react";
 import { AiOutlineCamera } from "react-icons/ai";
 import avatarDefault from "../../../public/assets/avatar.png";
-import { useUpdateAvatarMutation } from "@/redux/features/user/userApi";
+import {
+  useEditProfileMutation,
+  useUpdateAvatarMutation,
+} from "@/redux/features/user/userApi";
 import { toast } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { userLoggedIn } from "@/redux/features/auth/authSlice";
@@ -16,47 +19,65 @@ type Props = {
 
 const ProfileInfo: FC<Props> = ({ avatar, user }) => {
   const [name, setName] = useState(user && user.name);
-  // Create a local state to hold the immediate base64 image preview
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const dispatch = useDispatch();
 
-  const [updateAvatar, { isSuccess, isError, isLoading, data: responseData }] =
-    useUpdateAvatarMutation();
+  const [updateAvatar, { isLoading }] = useUpdateAvatarMutation();
+  const [EditProfile, { isLoading: updateLoading }] = useEditProfileMutation();
 
-  const imageHanlder = async (e: any) => {
+  // Handled cleanly via inline promises to prevent useEffect state conflicts
+  const imageHandler = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       if (reader.readyState === 2) {
         const base64Image = reader.result as string;
         setImagePreview(base64Image);
-        updateAvatar({ avatar: base64Image });
+
+        try {
+          // .unwrap() extracts the raw payload or directly throws the error object
+          const res = await updateAvatar({ avatar: base64Image }).unwrap();
+          toast.success("Avatar updated successfully");
+          
+          if (res?.user) {
+            dispatch(
+              userLoggedIn({
+                user: res.user,
+              }),
+            );
+          }
+        } catch (err: any) {
+          setImagePreview(null);
+          const errorMessage = err?.data?.message || "Avatar update failed";
+          toast.error(errorMessage);
+          console.error(err);
+        }
       }
     };
     reader.readAsDataURL(file);
   };
 
-  useEffect(() => {
-    if (isSuccess) {
-      toast.success("Avatar updated successfully");
-
-      if (responseData?.user) {
-        dispatch(
-          userLoggedIn({
-            user: responseData.user,
-          }),
-        );
+  // Handled cleanly via inline promises to prevent useEffect state conflicts
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (name.trim() !== "") {
+      try {
+        await EditProfile({
+          name,
+          email: user.email,
+        }).unwrap();
+        
+        toast.success("Profile updated successfully!");
+      } catch (err: any) {
+        const errorMessage = err?.data?.message || "Profile update failed";
+        toast.error(errorMessage);
+        console.error(err);
       }
     }
-    if (isError) {
-      toast.error("Failed to update avatar");
-      setImagePreview(null);
-    }
-  }, [isSuccess, isError, responseData, dispatch]);
+  };
 
-  // Determine fallback image source securely
   const getImageSrc = () => {
     if (imagePreview) return imagePreview;
     if (user?.avatar?.url) return user.avatar.url;
@@ -89,7 +110,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
             name="avatar"
             id="avatar"
             className="hidden"
-            onChange={imageHanlder}
+            onChange={imageHandler}
             accept="image/png,image/jpg,image/jpeg,image/webp"
             disabled={isLoading}
           />
@@ -104,7 +125,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
       </div>
 
       {/* Main Profile Info Form Area */}
-      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
             Full Name
@@ -134,9 +155,10 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 flex justify-end">
           <button
             type="submit"
-            className="w-full min-[800px]:w-[180px] h-12 flex items-center justify-center font-medium rounded-xl text-white bg-gradient-to-r from-[#37a39a] to-[#2c847c] hover:opacity-95 transition-all duration-300 shadow-md active:scale-[0.98] cursor-pointer"
+            disabled={updateLoading}
+            className="w-full min-[800px]:w-[180px] h-12 flex items-center justify-center font-medium rounded-xl text-white bg-gradient-to-r from-[#37a39a] to-[#2c847c] hover:opacity-95 transition-all duration-300 shadow-md active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Update Profile
+            {updateLoading ? "Updating..." : "Update Profile"}
           </button>
         </div>
       </form>

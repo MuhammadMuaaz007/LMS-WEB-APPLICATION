@@ -33,7 +33,10 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
   const [logout, setLogout] = useState(false);
-  const { data } = useSession();
+
+  // 1. Destructure "status" from NextAuth to monitor the cookie handshake
+  const { data: sessionData, status: sessionStatus } = useSession();
+
   const {} = useLogoutQuery(undefined, {
     skip: !logout ? true : false,
   });
@@ -45,8 +48,14 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
     },
   );
 
-  const [socialAuth, { isSuccess }] = useSocialAuthMutation();
+  // 2. Destructure isLoading from your custom backend social login mutation
+  const [socialAuth, { isSuccess, isLoading: socialAuthLoading }] =
+    useSocialAuthMutation();
   const socialAuthCalled = useRef(false);
+
+  // 3. Create a unified, master loading flag to prevent visual UI flipping
+  const isAuthenticating =
+    sessionStatus === "loading" || userLoading || socialAuthLoading;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,22 +89,28 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   useEffect(() => {
     if (userLoading) return;
 
-    if (!user && !loadUserData?.user && data && !socialAuthCalled.current) {
+    if (
+      !user &&
+      !loadUserData?.user &&
+      sessionData &&
+      !socialAuthCalled.current
+    ) {
       socialAuthCalled.current = true;
       socialAuth({
-        email: data?.user?.email as string,
-        name: data?.user?.name as string,
-        avatar: data.user?.image as string,
+        email: sessionData?.user?.email as string,
+        name: sessionData?.user?.name as string,
+        avatar: sessionData.user?.image as string,
       });
     }
-    if (data === null && isSuccess && !user) {
+    if (sessionData === null && isSuccess && !user) {
       setLogout(true);
     }
-  }, [data, user, userLoading, loadUserData, socialAuth]);
+  }, [sessionData, user, userLoading, loadUserData, socialAuth, isSuccess]);
 
+  // Fix: Show the toast message when your internal database auth finishes successfully
   useEffect(() => {
-    if (isSuccess && data === null) {
-      toast.success("login successfully");
+    if (isSuccess) {
+      toast.success("Login successful!");
     }
   }, [isSuccess]);
 
@@ -130,7 +145,10 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
 
             <ThemeSwitcher />
 
-            {user ? (
+            {/* 4. Check unified loading flag before making rendering assumptions */}
+            {isAuthenticating ? (
+              <div className="hidden min-[800px]:block w-9 h-9 rounded-full bg-gray-200 dark:bg-slate-700 animate-pulse" />
+            ) : user ? (
               <Link
                 href={"/profile"}
                 className="hidden min-[800px]:block shrink-0"
@@ -168,7 +186,7 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         </div>
       </header>
 
-      {/* spacer so content doesn't sit under the fixed header */}
+      {/* spacer */}
       <div className="h-20" />
 
       {/* Mobile sidebar */}
@@ -207,7 +225,10 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
             </div>
 
             <div className="px-5 py-4 border-t border-gray-200 dark:border-white/10">
-              {user ? (
+              {/* 5. Match loading logic for mobile sidebar view as well */}
+              {isAuthenticating ? (
+                <div className="w-9 h-9 rounded-full bg-gray-200 dark:bg-slate-700 animate-pulse" />
+              ) : user ? (
                 <Link
                   href="/profile"
                   className="flex items-center gap-3"
@@ -250,47 +271,35 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         </div>
       )}
 
-      {route === "Login" && (
-        <>
-          {open && (
-            <CustomModal
-              open={open}
-              setOpen={setOpen}
-              route={route}
-              setRoute={setRoute}
-              activeItem={activeItem}
-              component={Login}
-            />
-          )}
-        </>
+      {open && route === "Login" && (
+        <CustomModal
+          open={open}
+          setOpen={setOpen}
+          route={route}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          component={Login}
+        />
       )}
-      {route === "SignUp" && (
-        <>
-          {open && (
-            <CustomModal
-              open={open}
-              setOpen={setOpen}
-              route={route}
-              setRoute={setRoute}
-              activeItem={activeItem}
-              component={SignUp}
-            />
-          )}
-        </>
+      {open && route === "SignUp" && (
+        <CustomModal
+          open={open}
+          setOpen={setOpen}
+          route={route}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          component={SignUp}
+        />
       )}
-      {route === "Verification" && (
-        <>
-          {open && (
-            <CustomModal
-              open={open}
-              setOpen={setOpen}
-              route={route}
-              setRoute={setRoute}
-              activeItem={activeItem}
-              component={Verification}
-            />
-          )}
-        </>
+      {open && route === "Verification" && (
+        <CustomModal
+          open={open}
+          setOpen={setOpen}
+          route={route}
+          setRoute={setRoute}
+          activeItem={activeItem}
+          component={Verification}
+        />
       )}
     </div>
   );

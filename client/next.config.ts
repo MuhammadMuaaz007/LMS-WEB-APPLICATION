@@ -3,20 +3,25 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        protocol: "http",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },
-  // In Next.js v15/v16+, turbopack is a top-level option!
+
   turbopack: {
-    // Tells Turbopack that the 'client' folder is your true project root
     root: __dirname,
   },
 };

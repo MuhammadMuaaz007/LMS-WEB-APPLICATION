@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"; // Add Request a
 import userModel, { IUser } from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
+import crypto from "crypto";
 
 import jwt, { JwtPayload, type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -255,8 +256,29 @@ export const socialAuth = CatchAsyncError(
       const user = await userModel.findOne({ email });
 
       if (!user) {
+        const generatedPassword = crypto.randomBytes(3).toString("hex");
         // @ts-ignore
-        const newUser = await userModel.create({ email, name, avatar });
+        const newUser = await userModel.create({
+          email,
+          name,
+          avatar: {
+            public_id: "",
+            url: avatar,
+          },
+          password: generatedPassword,
+        });
+        const mailData = {
+          user: { name: newUser.name },
+          generatedPassword,
+        };
+
+        await sendMailer({
+          email: newUser.email,
+          subject: "Your Account Password",
+          template: "social-password.mail.ejs", // Create this template in your mails folder
+          data: mailData,
+        });
+
         sendToken(newUser, 200, res);
       } else {
         sendToken(user, 200, res);
