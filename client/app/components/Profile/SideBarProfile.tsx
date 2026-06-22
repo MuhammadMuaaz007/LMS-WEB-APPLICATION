@@ -84,7 +84,7 @@ const SideBarProfile = ({
           </h5>
         </div>
 
-        {/* Admin Dashboard Tab */}
+     
         {user?.role === "admin" && (
           <Link
             href="/admin"

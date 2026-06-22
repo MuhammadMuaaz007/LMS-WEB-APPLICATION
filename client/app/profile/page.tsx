@@ -1,33 +1,35 @@
-'use client'
-import React, { FC, useState } from 'react';
-import Protected from '../hooks/useProtected';
-import Header from '../components/Header';
-import Profile from '../components/Profile/Profile';
-import { useSelector } from 'react-redux';
-import Heading from '../utils/Heading';
-type Props={}
-const Page:FC<Props> = () => {
-    const [open, setOpen] = useState(false);
-    const [activeItem, setActiveItem] = useState(5);
-    const [route, setRoute] = useState("Login");
-    const {user} =useSelector((state:any)=>state.auth)
+"use client";
+import React, { FC, useState } from "react";
+import Protected from "../hooks/useProtected";
+import Header from "../components/Header";
+import Profile from "../components/Profile/Profile";
+import { useSelector } from "react-redux";
+import Heading from "../utils/Heading";
+type Props = {};
+const Page: FC<Props> = () => {
+  const [open, setOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState(5);
+  const [route, setRoute] = useState("Login");
+  const { user } = useSelector((state: any) => state.auth);
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Protected>
-      <Heading
-        title={`${user?.name || "User"}'s Profile`}
-        description="ELearning is the Platform for students to learn and get help from teachers"
-        keywords="Programing,Mern,Ai,Ml"
-      />
-      <Header   open={open}
-        setOpen={setOpen}
-        activeItem={activeItem}
-        setRoute={setRoute}
-        route={route} />
-        <Profile user={user} /> 
+        <Heading
+          title={`${user?.name}'s Profile - SkillStack`}
+          description="ELearning is the Platform for students to learn and get help from teachers"
+          keywords="Programing,Mern,Ai,Ml"
+        />
+        <Header
+          open={open}
+          setOpen={setOpen}
+          activeItem={activeItem}
+          setRoute={setRoute}
+          route={route}
+        />
+        <Profile user={user} />
       </Protected>
     </div>
-  )
-}
+  );
+};
 
 export default Page;
