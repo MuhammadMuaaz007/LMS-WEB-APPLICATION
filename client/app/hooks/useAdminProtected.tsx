@@ -1,12 +1,28 @@
+"use client";
+
 import { redirect } from "next/navigation";
 import { useSelector } from "react-redux";
-interface protectedProps {
+import { useLayoutEffect } from "react";
+
+interface ProtectedProps {
   children: React.ReactNode;
 }
-export default function Protected({ children }: protectedProps) {
-  const user = useSelector((state: any) => state.user);
 
+interface RootState {
+  user: {
+    role: string;
+  } | null;
+}
+
+export default function AdminProtected({ children }: ProtectedProps) {
+  const {user} = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === "admin";
 
-  return isAdmin ? children : redirect("/");
+  useLayoutEffect(() => {
+    if (!isAdmin) {
+      redirect("/");
+    }
+  }, [isAdmin]);
+
+  return isAdmin ? <>{children}</> : null;
 }
