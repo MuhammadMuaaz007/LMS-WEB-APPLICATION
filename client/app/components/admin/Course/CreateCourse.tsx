@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
+import CourseData from "./CourseData";
 
 const CreateCourse = () => {
   const [active, setActive] = useState(0);
@@ -17,7 +18,7 @@ const CreateCourse = () => {
     thumbnail: "",
   });
   const [benefits, setBenefits] = useState([{ title: "" }]);
-  const [prerequisites, setPrerequisities] = useState([{ title: "" }]);
+  const [prerequisites, setPrerequisites] = useState([{ title: "" }]);
   const [courseContentData, setCourseContentData] = useState([
     {
       videoUrl: "",
@@ -51,7 +52,24 @@ const CreateCourse = () => {
       </div>
 
       <div className="w-full md:w-[75%] lg:w-[80%] p-4 sm:p-6 md:p-10 box-border mt-4 md:mt-0">
-        {active === 0 && <CourseInformation />}
+        {active === 0 && (
+          <CourseInformation
+            courseInfo={courseInfo}
+            setCourseInfo={setCourseInfo}
+            active={active}
+            setActive={setActive}
+          />
+        )}
+        {active === 1 && (
+          <CourseData
+            benefits={benefits}
+            setBenefits={setBenefits}
+            prerequisites={prerequisites}
+            setPrerequisites={setPrerequisites}
+            active={active}
+            setActive={setActive}
+          />
+        )}
       </div>
 
       <div className="hidden md:block md:w-[240px] lg:w-[280px] flex-shrink-0 relative">

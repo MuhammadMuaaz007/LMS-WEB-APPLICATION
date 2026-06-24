@@ -1,3 +1,5 @@
+"use client"
+
 import React, { FC } from "react";
 import { IoMdCheckmark } from "react-icons/io";
 
@@ -14,17 +16,27 @@ const CourseOptions: FC<Props> = ({ active, setActive }) => {
     "Course Preview",
   ];
 
+  const handleStepClick = (index: number) => {
+    // ONLY allow clicking if it's a previous step or the current active step
+    // Forward steps can only be unlocked by pressing the form's "Next" button
+    if (index <= active) {
+      setActive(index);
+    }
+  };
+
   return (
     <div className="w-full flex flex-row md:flex-col justify-center md:justify-start items-center md:items-start gap-x-6 gap-y-1 md:gap-1">
       {options.map((option: string, index: number) => {
         const isCompleted = active > index;
         const isActive = active === index;
+        const isForwardStep = index > active;
 
         return (
           <div
             key={index}
-            className="flex flex-col md:flex-row items-center md:items-start group cursor-pointer relative pb-0 md:pb-8 last:pb-0"
-            onClick={() => setActive(index)}
+            className={`flex flex-col md:flex-row items-center md:items-start group relative pb-0 md:pb-8 last:pb-0
+              ${isForwardStep ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+            onClick={() => handleStepClick(index)}
           >
             {/* Connecting Lines */}
             {index !== options.length - 1 && (
@@ -65,22 +77,23 @@ const CourseOptions: FC<Props> = ({ active, setActive }) => {
               </div>
             </div>
 
-      {/* Step Title Label */}
-<div className="hidden md:block pl-4 pt-1.5 flex-1 min-w-0 transition-all duration-200">
-  <h5
-    className={`text-[13px] lg:text-[14px] font-Poppins font-medium tracking-wide transition-colors duration-200 select-none truncate lg:whitespace-nowrap
-      ${
-        isActive
-          ? "text-[#37a39a] font-semibold"
-          : isCompleted
-          ? "text-slate-800 dark:text-gray-200"
-          : "text-slate-400 dark:text-gray-500 group-hover:text-slate-600 dark:group-hover:text-gray-300"
-      }
-    `}
-  >
-    {option}
-  </h5>
-</div>
+            {/* Step Title Label */}
+            <div className="hidden md:block pl-4 pt-1.5 flex-1 min-w-0 transition-all duration-200">
+              <h5
+                className={`text-[13px] lg:text-[14px] font-Poppins font-medium tracking-wide transition-colors duration-200 select-none truncate lg:whitespace-nowrap
+                  ${
+                    isActive
+                      ? "text-[#37a39a] font-semibold"
+                      : isCompleted
+                      ? "text-slate-800 dark:text-gray-200"
+                      : "text-slate-400 dark:text-gray-500 group-hover:text-slate-600 dark:group-hover:text-gray-300"
+                  }
+                  ${isForwardStep && "group-hover:text-slate-400 dark:group-hover:text-gray-500"}
+                `}
+              >
+                {option}
+              </h5>
+            </div>
           </div>
         );
       })}
