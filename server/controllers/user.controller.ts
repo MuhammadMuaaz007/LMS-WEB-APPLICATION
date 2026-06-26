@@ -217,10 +217,7 @@ export const updateAccessToken = CatchAsyncError(
 
       redis.set(user._id, JSON.stringify(user), "EX", 604800);
 
-      return res.status(200).json({
-        success: true,
-        accessToken,
-      });
+      next();
     } catch (err: any) {
       return next(new ErrorHandler(err.message, 400));
     }

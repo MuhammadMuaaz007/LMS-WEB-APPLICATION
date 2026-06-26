@@ -13,6 +13,7 @@ import path from "path";
 import ejs from "ejs";
 import sendMailer from "../utils/sendmail.js";
 import NotificationModel from "../models/notification.model.js";
+import axios from "axios";
 // upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -115,8 +116,6 @@ export const getSingleCourse = CatchAsyncError(
     }
   },
 );
-
-
 
 export const getAllCourses = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -432,6 +431,39 @@ export const deleteCourse = CatchAsyncError(
       res.status(200).json({
         success: true,
         message: "Course deleted successfully",
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  },
+);
+
+export const generateVideoUrl = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { videoId } = req.body;
+
+      const response = await axios.post(
+        `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+        { ttl: 300 },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
+          },
+        },
+      );
+
+      // ✅ Manually format the playbackInfo object VdoCipher expects
+      const playbackInfo = Buffer.from(
+        JSON.stringify({ videoId: videoId }),
+      ).toString("base64");
+
+      // Send both to your frontend
+      res.json({
+        otp: response.data.otp,
+        playbackInfo: playbackInfo,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));

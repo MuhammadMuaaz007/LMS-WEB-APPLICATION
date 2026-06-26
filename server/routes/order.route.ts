@@ -1,6 +1,7 @@
 import express from "express";
 import { authorizeRole, isAuthenticated } from "../middleware/auth.js";
 import { createOrder, getAllOrders } from "../controllers/order.controller.js";
+import { updateAccessToken } from "../controllers/user.controller.js";
 
 const orderRouter = express.Router();
 
@@ -8,6 +9,7 @@ orderRouter.post("/create-order", isAuthenticated, createOrder);
 
 orderRouter.get(
   "/get-all-orders",
+  updateAccessToken,
   isAuthenticated,
   authorizeRole("admin"),
   getAllOrders,

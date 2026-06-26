@@ -11,8 +11,37 @@ type Props = {
 
 const CourseInformation: FC<Props> = ({ courseInfo, setCourseInfo, active, setActive }) => {
 
-  const categories: any[] = []; 
-  
+const categories: Category[] = [
+  { id: 1, title: "Web Development" },
+  { id: 2, title: "Frontend Development" },
+  { id: 3, title: "Backend Development" },
+  { id: 4, title: "Full-Stack Development" },
+  { id: 5, title: "MERN Stack" },
+  { id: 6, title: "React.js" },
+  { id: 7, title: "Next.js" },
+  { id: 8, title: "Node.js" },
+  { id: 9, title: "Express.js" },
+  { id: 10, title: "MongoDB" },
+  { id: 11, title: "JavaScript" },
+  { id: 12, title: "TypeScript" },
+  { id: 13, title: "HTML & CSS" },
+  { id: 14, title: "Python" },
+  { id: 15, title: "Java" },
+  { id: 16, title: "C++" },
+  { id: 17, title: "Data Structures & Algorithms" },
+  { id: 18, title: "Database Management" },
+  { id: 19, title: "DevOps" },
+  { id: 20, title: "Docker" },
+  { id: 21, title: "Kubernetes" },
+  { id: 22, title: "AWS" },
+  { id: 23, title: "Cybersecurity" },
+  { id: 24, title: "Artificial Intelligence" },
+  { id: 25, title: "Machine Learning" },
+  { id: 26, title: "Data Science" },
+  { id: 27, title: "UI/UX Design" },
+  { id: 28, title: "Git & GitHub" },
+];
+   
   const [dragging, setDragging] = useState(false)
 
   const handleSubmit = (e: any) => {

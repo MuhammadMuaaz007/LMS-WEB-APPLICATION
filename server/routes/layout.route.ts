@@ -8,9 +8,11 @@ import {
   getLayoutByType,
 } from "../controllers/layout.controller.js";
 import { authorizeRole, isAuthenticated } from "../middleware/auth.js";
+import { updateAccessToken } from "../controllers/user.controller.js";
 
 layoutRouter.post(
   "/create-layout",
+  updateAccessToken,
   isAuthenticated,
   authorizeRole("admin"),
   createLayout,
@@ -18,6 +20,7 @@ layoutRouter.post(
 
 layoutRouter.put(
   "/edit-layout",
+  updateAccessToken,
   isAuthenticated,
   authorizeRole("admin"),
   editLayout,
