@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
+import CourseContent from "./CourseContent";
 
 const CreateCourse = () => {
   const [active, setActive] = useState(0);
@@ -38,6 +39,7 @@ const CreateCourse = () => {
     "Course Content",
     "Course Preview",
   ];
+  const handleSubmit = () => {};
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-transparent">
@@ -68,6 +70,15 @@ const CreateCourse = () => {
             setPrerequisites={setPrerequisites}
             active={active}
             setActive={setActive}
+          />
+        )}
+        {active === 2 && (
+          <CourseContent
+            courseContentData={courseContentData}
+            setCourseContentData={setCourseContentData}
+            active={active}
+            setActive={setActive}
+            handleSubmit={handleSubmit}
           />
         )}
       </div>

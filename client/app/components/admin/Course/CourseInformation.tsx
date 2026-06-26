@@ -248,7 +248,7 @@ const CourseInformation: FC<Props> = ({ courseInfo, setCourseInfo, active, setAc
             type="submit"
             className="w-full sm:w-[160px] h-[46px] bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg shadow-sm shadow-teal-600/20 active:scale-[0.98] transition-all duration-150 cursor-pointer"
           >
-            Next Step
+            Save & Next
           </button>
         </div>
       </form>

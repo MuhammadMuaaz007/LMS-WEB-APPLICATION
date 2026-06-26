@@ -133,7 +133,7 @@ const CourseData: FC<Props> = ({
           onClick={prevButton}
           className="w-full sm:w-[160px] h-[44px] flex items-center justify-center border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
-          Prev
+          Previous Step
         </button>
 
         <button
@@ -141,7 +141,7 @@ const CourseData: FC<Props> = ({
           onClick={handleOptions}
           className="w-full sm:w-[160px] h-[44px] flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-medium rounded-lg shadow-sm shadow-teal-600/20 active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
-          Next
+          Save & Next
         </button>
       </div>
     </div>
