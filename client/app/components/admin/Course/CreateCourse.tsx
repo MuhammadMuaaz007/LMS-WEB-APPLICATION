@@ -12,8 +12,9 @@ import { useRouter } from "next/navigation"; // ✅ Fixed import path for Next.j
 const CreateCourse = () => {
   const [active, setActive] = useState(0);
   const [createCourse, { isLoading }] = useCreateCourseMutation();
+
   const router = useRouter();
-  
+
   const [courseInfo, setCourseInfo] = useState({
     name: "",
     description: "",
@@ -56,18 +57,20 @@ const CreateCourse = () => {
       title: prerequisite.title,
     }));
 
-    const formattedCourseContentData = courseContentData.map((courseContent) => ({
-      videoUrl: courseContent.videoUrl,
-      title: courseContent.title,
-      description: courseContent.description,
-      videoLength: courseContent.videoLength,
-      videoSection: courseContent.videoSection,
-      links: courseContent.links.map((link) => ({
-        title: link.title,
-        url: link.url,
-      })),
-      suggestion: courseContent.suggestion,
-    }));
+    const formattedCourseContentData = courseContentData.map(
+      (courseContent) => ({
+        videoUrl: courseContent.videoUrl,
+        title: courseContent.title,
+        description: courseContent.description,
+        videoLength: courseContent.videoLength,
+        videoSection: courseContent.videoSection,
+        links: courseContent.links.map((link) => ({
+          title: link.title,
+          url: link.url,
+        })),
+        suggestion: courseContent.suggestion,
+      }),
+    );
 
     return {
       name: courseInfo.name,
@@ -95,14 +98,16 @@ const CreateCourse = () => {
   const handleCourseCreate = async () => {
     const dynamicFinalData = getFormattedCourseData();
     console.log("Submitting perfectly synced course data:", dynamicFinalData);
-    
+
     try {
       await createCourse(dynamicFinalData).unwrap();
+
       toast.success("Course created successfully!");
       router.push("/admin");
     } catch (error: any) {
       console.error("Mutation error payload:", error);
-      const errorMessage = error?.data?.message || "Failed to create course. Please try again.";
+      const errorMessage =
+        error?.data?.message || "Failed to create course. Please try again.";
       toast.error(errorMessage);
     }
   };
@@ -154,7 +159,8 @@ const CreateCourse = () => {
           <CoursePreview
             active={active}
             setActive={setActive}
-            courseData={getFormattedCourseData()} // ✅ Pass data cleanly down without stale hooks
+            courseData={getFormattedCourseData()}
+            isLoading={isLoading}
             handleCourseCreate={handleCourseCreate}
           />
         )}
