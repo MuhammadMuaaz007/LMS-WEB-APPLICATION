@@ -1,6 +1,5 @@
 "use client";
 
-import { styles } from "@/app/style/style";
 import CoursePlayer from "../../../utils/CoursePlayer";
 import Ratings from "../../../utils/Ratings";
 import React, { FC } from "react";
@@ -12,6 +11,7 @@ type Props = {
   courseData: any;
   handleCourseCreate: any;
   isEdit?: boolean;
+  isLoading?: boolean; // ✅ Added optional loading flag prop from parent mutation state
 };
 
 const CoursePreview: FC<Props> = ({
@@ -19,7 +19,8 @@ const CoursePreview: FC<Props> = ({
   setActive,
   courseData,
   handleCourseCreate,
-  isEdit
+  isEdit,
+  isLoading = false // ✅ Default to false if not passed
 }) => {
   // Safe calculation to prevent Division-by-Zero errors if estimatedPrice is empty
   const discountPercentage = courseData?.estimatedPrice
@@ -88,7 +89,7 @@ const CoursePreview: FC<Props> = ({
           </div>
         </div>
 
-        {/* 📋 2. BOTTOM DETAILS AREA: ALL INFRASTRUCTURE & METADATA ACCORDIONS */}
+        {/* 📋 2. BOTTOM DETAILS AREA */}
         <div className="w-full space-y-8 min-w-0 px-1">
           
           {/* Header Title Metadata block */}
@@ -178,17 +179,28 @@ const CoursePreview: FC<Props> = ({
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mt-12 pt-6 border-t border-gray-200/60 dark:border-white/10">
         <button
           type="button"
-          className="w-full sm:w-[150px] order-2 sm:order-1 flex items-center justify-center h-[42px] border border-gray-200 dark:border-white/10 text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 font-medium text-sm rounded-xl transition-all duration-200 select-none"
+          disabled={isLoading}
+          className="w-full sm:w-[150px] order-2 sm:order-1 flex items-center justify-center h-[42px] border border-gray-200 dark:border-white/10 text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 font-medium text-sm rounded-xl transition-all duration-200 select-none disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setActive(active - 1)}
         >
           Previous Step
         </button>
+        
+        {/* ✅ Updated Action Button with Inline Loading Spinner */}
         <button
           type="button"
-          className="w-full sm:w-[150px] order-1 sm:order-2 flex items-center justify-center h-[42px] bg-[#37a39a] text-white font-medium text-sm rounded-xl transition-all duration-200 select-none shadow-md shadow-[#37a39a]/10 hover:bg-[#2d857e]"
+          disabled={isLoading}
+          className="w-full sm:w-[150px] order-1 sm:order-2 flex items-center justify-center h-[42px] bg-[#37a39a] text-white font-medium text-sm rounded-xl transition-all duration-200 select-none shadow-md shadow-[#37a39a]/10 hover:bg-[#2d857e] disabled:opacity-80 disabled:cursor-not-allowed gap-2"
           onClick={handleCourseCreate}
         >
-          {isEdit ? "Update Course" : "Create Course"}
+          {isLoading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Processing...</span>
+            </>
+          ) : (
+            <span>{isEdit ? "Update Course" : "Create Course"}</span>
+          )}
         </button>
       </div>
 
