@@ -69,7 +69,7 @@ courseRouter.put(
 );
 
 courseRouter.get(
-  "/get-all-courses",
+  "/get-all-admin-courses",
   updateAccessToken,
   isAuthenticated,
   authorizeRole("admin"),

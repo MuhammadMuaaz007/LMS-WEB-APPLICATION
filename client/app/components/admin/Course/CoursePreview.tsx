@@ -3,7 +3,7 @@
 import CoursePlayer from "../../../utils/CoursePlayer";
 import Ratings from "../../../utils/Ratings";
 import React, { FC } from "react";
-import { IoCheckmarkDoneOutline } from "react-icons/io5"; 
+import { IoCheckmarkDoneOutline } from "react-icons/io5";
 
 type Props = {
   active: number;
@@ -11,7 +11,7 @@ type Props = {
   courseData: any;
   handleCourseCreate: any;
   isEdit?: boolean;
-  isLoading?: boolean; // ✅ Added optional loading flag prop from parent mutation state
+  isLoading?: boolean;
 };
 
 const CoursePreview: FC<Props> = ({
@@ -20,25 +20,23 @@ const CoursePreview: FC<Props> = ({
   courseData,
   handleCourseCreate,
   isEdit,
-  isLoading = false // ✅ Default to false if not passed
+  isLoading = false,
 }) => {
-  // Safe calculation to prevent Division-by-Zero errors if estimatedPrice is empty
   const discountPercentage = courseData?.estimatedPrice
-    ? ((courseData.estimatedPrice - courseData.price) / courseData.estimatedPrice) * 100
+    ? ((courseData.estimatedPrice - courseData.price) /
+        courseData.estimatedPrice) *
+      100
     : 0;
 
   const discountPercentagePrice = discountPercentage.toFixed(0);
 
   return (
     <div className="w-full max-w-[850px] mx-auto mt-4 md:mt-10 p-4 font-Poppins text-slate-800 dark:text-gray-100 box-border">
-      
       {/* 💻 STACKED FLOW CONTAINER (Strict Vertical Alignment) */}
       <div className="w-full flex flex-col gap-8">
-        
         {/* 🎬 1. TOP VIDEO PLAYER & PURCHASING CARD */}
         <div className="w-full space-y-6">
           <div className="bg-white dark:bg-[#0b0c14] border border-gray-200/60 dark:border-white/10 rounded-2xl p-4 sm:p-6 shadow-sm">
-            
             {/* Embedded Media Player Frame Wrapper */}
             <div className="w-full rounded-xl overflow-hidden shadow-inner bg-black aspect-video relative">
               <CoursePlayer
@@ -69,7 +67,10 @@ const CoursePreview: FC<Props> = ({
               type="button"
               className="w-full h-[46px] bg-[#37a39a] text-white font-medium text-sm rounded-xl transition-all duration-200 opacity-90 cursor-not-allowed hover:bg-[#2d857e] shadow-md shadow-[#37a39a]/10"
             >
-              Buy Now — {courseData?.price === 0 ? "Access Free" : `${courseData?.price}$`}
+              Buy Now —{" "}
+              {courseData?.price === 0
+                ? "Access Free"
+                : `${courseData?.price}$`}
             </button>
 
             {/* Discount Promo Field Entry Input */}
@@ -91,7 +92,6 @@ const CoursePreview: FC<Props> = ({
 
         {/* 📋 2. BOTTOM DETAILS AREA */}
         <div className="w-full space-y-8 min-w-0 px-1">
-          
           {/* Header Title Metadata block */}
           <div className="space-y-3">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
@@ -99,11 +99,11 @@ const CoursePreview: FC<Props> = ({
             </h1>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-gray-400">
               <div className="flex items-center gap-1.5">
-                <Ratings rating={5} />
-                <span className="ml-1">5 Reviews</span>
+                <Ratings rating={courseData?.rating || 0} />
+                <span className="ml-1">{courseData?.rating || 0}.0</span>
               </div>
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-gray-700" />
-              <span>50 Students Enrolled</span>
+              <span>{courseData?.purchased || 0} Students Enrolled</span>
             </div>
           </div>
 
@@ -116,7 +116,9 @@ const CoursePreview: FC<Props> = ({
               {courseData?.benefits?.map((item: any, index: number) => (
                 <div className="flex items-start gap-2.5 py-1" key={index}>
                   <IoCheckmarkDoneOutline className="text-[#37a39a] text-lg mt-0.5 flex-shrink-0" />
-                  <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300 break-words pr-2">{item.title}</p>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300 break-words pr-2">
+                    {item.title}
+                  </p>
                 </div>
               ))}
             </div>
@@ -131,7 +133,9 @@ const CoursePreview: FC<Props> = ({
               {courseData?.prerequisites?.map((item: any, index: number) => (
                 <div className="flex items-start gap-2.5 py-1" key={index}>
                   <IoCheckmarkDoneOutline className="text-[#37a39a] text-lg mt-0.5 flex-shrink-0" />
-                  <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300 break-words">{item.title}</p>
+                  <p className="text-sm leading-relaxed text-slate-600 dark:text-gray-300 break-words">
+                    {item.title}
+                  </p>
                 </div>
               ))}
             </div>
@@ -168,11 +172,11 @@ const CoursePreview: FC<Props> = ({
               Course Details
             </h2>
             <p className="text-sm sm:text-[15px] leading-relaxed text-slate-600 dark:text-gray-300 whitespace-pre-line tracking-wide break-words">
-              {courseData?.description || "No full course description summary provided yet."}
+              {courseData?.description ||
+                "No full course description summary provided yet."}
             </p>
           </div>
         </div>
-
       </div>
 
       {/* 🚀 RESPONSIVE BOTTOM NAVIGATION ACTION BAR FOOTER */}
@@ -185,13 +189,13 @@ const CoursePreview: FC<Props> = ({
         >
           Previous Step
         </button>
-        
+
         {/* ✅ Updated Action Button with Inline Loading Spinner */}
         <button
           type="button"
           disabled={isLoading}
           className="w-full sm:w-[150px] order-1 sm:order-2 flex items-center justify-center h-[42px] bg-[#37a39a] text-white font-medium text-sm rounded-xl transition-all duration-200 select-none shadow-md shadow-[#37a39a]/10 hover:bg-[#2d857e] disabled:opacity-80 disabled:cursor-not-allowed gap-2"
-          onClick={handleCourseCreate}
+          onClick={ handleCourseCreate}
         >
           {isLoading ? (
             <>
@@ -203,7 +207,6 @@ const CoursePreview: FC<Props> = ({
           )}
         </button>
       </div>
-
     </div>
   );
 };

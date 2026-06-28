@@ -1,19 +1,40 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { FiEdit2 } from "react-icons/fi";
-import { useGetAllCoursesQuery } from "@/redux/features/courses/coursesApi";
+import { useDeleteCourseMutation, useGetAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 import Loader from "../../Loader/Loader";
 import { format } from "timeago.js"; 
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 type Props = {};
 
 const AllCourses: FC<Props> = () => {
-  const { isLoading, data } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+  const { isLoading, data, refetch } = useGetAllCoursesQuery({}, { refetchOnMountOrArgChange: true });
+  const [deleteCourse, { isLoading: isDeleteCourse }] = useDeleteCourseMutation();
+
+  // 🏪 STATE MANAGEMENT FOR THE CONFIRMATION POPUP
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState("");
 
   const courses = data?.courses || [];
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCourseId) return;
+
+    try {
+      await deleteCourse(selectedCourseId).unwrap();
+      
+      toast.success("Course deleted successfully!");
+      setDeleteModalOpen(false);
+      setSelectedCourseId("");
+      refetch(); 
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to remove course from repository.");
+    }
+  };
 
   return (
     <div className="w-full p-4 sm:p-6 md:p-10 font-Poppins box-border mt-14 md:mt-0 text-slate-800 dark:text-gray-100">
@@ -46,7 +67,7 @@ const AllCourses: FC<Props> = () => {
                   /* Render actual Image thumbnail if structure exists */
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={item.thumbnail.url}
+                    src={item.thumbnail.url || "../../../../public/defaultThumbnaill.png"}
                     alt={item.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
@@ -71,7 +92,7 @@ const AllCourses: FC<Props> = () => {
               <div className="p-5 flex-grow flex flex-col justify-between">
                 <div>
                   
-                  {/* COURSE ID TAG (Hand pointer, hovers complete string, clicks to select all) */}
+                  {/* COURSE ID TAG */}
                   <div className="mb-2">
                     <span 
                       title={item._id || "No ID Available"}
@@ -81,7 +102,7 @@ const AllCourses: FC<Props> = () => {
                     </span>
                   </div>
 
-                  {/* COURSE TITLE (Line clamped, hand pointer, hovers complete name) */}
+                  {/* COURSE TITLE */}
                   <h3 
                     title={item.name}
                     className="text-[15px] font-semibold text-slate-800 dark:text-gray-100 line-clamp-1 tracking-wide leading-snug group-hover:text-[#37a39a] transition-colors duration-200 mb-1.5 cursor-pointer"
@@ -89,13 +110,13 @@ const AllCourses: FC<Props> = () => {
                     {item.name}
                   </h3>
                   
-                  {/* Dynamic Summary Description Block (Safely contained) */}
+                  {/* Dynamic Summary Description Block */}
                   <p className="text-xs text-slate-500 dark:text-gray-400 line-clamp-2 leading-relaxed tracking-wide min-h-[32px]">
                     {item.description || "No full summary context provided for this curriculum catalog structure."}
                   </p>
                 </div>
 
-                {/* EXTRA TIMING STRIP: Shows creation age subtly above the main metrics */}
+                {/* EXTRA TIMING STRIP */}
                 <div className="mt-4 text-[11px] text-slate-400 dark:text-slate-500 font-medium tracking-wide">
                   Added {format(item.createdAt)}
                 </div>
@@ -120,8 +141,14 @@ const AllCourses: FC<Props> = () => {
                     >
                       <FiEdit2 size={15} />
                     </Link>
+                    
+                    {/* DELETE TRIGGER (Binds active ID and invokes modal visibility) */}
                     <button
                       type="button"
+                      onClick={() => {
+                        setSelectedCourseId(item._id);
+                        setDeleteModalOpen(true);
+                      }}
                       className="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 dark:text-gray-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-500 dark:hover:text-rose-400 transition-all duration-200"
                       title="Delete Course"
                     >
@@ -144,6 +171,49 @@ const AllCourses: FC<Props> = () => {
           </p>
         </div>
       )}
+
+
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-[400px] bg-white dark:bg-[#0b0c14] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-6 text-center">
+            
+            <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AiOutlineDelete size={22} />
+            </div>
+
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Permanent Deletion</h2>
+            <p className="text-sm text-slate-500 dark:text-gray-400 leading-relaxed mb-6">
+              Are you sure you want to delete this course from the public directory? This structural action cannot be undone.
+            </p>
+
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                disabled={isDeleteCourse}
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setSelectedCourseId("");
+                }}
+                className="w-1/2 h-[40px] text-xs font-medium text-slate-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-all disabled:opacity-50"
+              >
+                No, Keep Course
+              </button>
+              <button
+                type="button"
+                disabled={isDeleteCourse}
+                onClick={handleDeleteConfirm}
+                className="w-1/2 h-[40px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-xl transition-all shadow-md shadow-rose-600/10 flex items-center justify-center gap-2 disabled:opacity-80"
+              >
+                {isDeleteCourse && (
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                <span>{isDeleteCourse ? "Deleting..." : "Yes, Delete Course"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

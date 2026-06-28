@@ -3,6 +3,7 @@ import React, { FC, useState } from "react";
 import { AiOutlineDelete, AiOutlinePlusCircle } from "react-icons/ai";
 import { BsLink45Deg, BsPencil } from "react-icons/bs";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+import { FiEdit2 } from "react-icons/fi";
 
 type Props = {
   active: number;
@@ -36,12 +37,25 @@ const CourseContent: FC<Props> = ({
 
   const handleRemoveLink = (index: number, linkIndex: number) => {
     const updatedData = [...courseContentData];
-    updatedData[index].links.splice(linkIndex, 1);
-    setCourseContentData(updatedData);
+
+    if (updatedData[index] && Array.isArray(updatedData[index].links)) {
+      updatedData[index].links = [...updatedData[index].links];
+      updatedData[index].links.splice(linkIndex, 1);
+      setCourseContentData(updatedData);
+    }
   };
 
   const handleAddLink = (index: number) => {
-    const updatedData = [...courseContentData];
+    const updatedData = courseContentData.map((item: any, i: number) => {
+      if (i === index) {
+        return {
+          ...item,
+          links: Array.isArray(item.links) ? [...item.links] : [],
+        };
+      }
+      return item;
+    });
+
     updatedData[index].links.push({ title: "", url: "" });
     setCourseContentData(updatedData);
   };
@@ -81,24 +95,25 @@ const CourseContent: FC<Props> = ({
     <div className="w-full max-w-[850px] mx-auto mt-6 md:mt-12 p-2 sm:p-4 font-Poppins">
       <form onSubmit={handleSubmit} className="space-y-6">
         {courseContentData?.map((item: any, index: number) => {
-          // Rule to detect when to print a brand new Module Section title input header
           const showSectionInput =
             index === 0 ||
             item.videoSection !== courseContentData[index - 1].videoSection;
 
           return (
             <div key={`content-${index}`} className="w-full block">
-
               {showSectionInput && (
                 <div className="flex w-full items-center gap-2 mt-8 mb-4 group/section">
                   <input
                     type="text"
                     className={`text-[18px] md:text-[22px] font-semibold font-Poppins cursor-pointer text-slate-800 dark:text-gray-100 bg-transparent outline-none border-b border-transparent hover:border-gray-300 dark:hover:border-white/10 focus:border-[#37a39a] focus:dark:border-[#37a39a] transition-all py-1
                       ${item.videoSection === "Untitled Section" ? "w-[170px]" : "w-auto"}`}
-                    value={item.videoSection}
+                    value={item.videoSection || ""}
                     onChange={(e) => {
                       const updatedData = [...courseContentData];
-                      updatedData[index].videoSection = e.target.value;
+                      updatedData[index] = {
+                        ...updatedData[index],
+                        videoSection: e.target.value,
+                      };
                       setCourseContentData(updatedData);
                     }}
                   />
@@ -171,10 +186,14 @@ const CourseContent: FC<Props> = ({
                         type="text"
                         placeholder="e.g., Introduction to Architecture Layouts..."
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
-                        value={item.title}
+                        value={item.title || ""}
+                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
-                          updatedData[index].title = e.target.value;
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            title: e.target.value,
+                          };
                           setCourseContentData(updatedData);
                         }}
                       />
@@ -189,34 +208,20 @@ const CourseContent: FC<Props> = ({
                         type="text"
                         placeholder="e.g., https://vimeo.com/stream-id"
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
-                        value={item.videoUrl}
+                        value={item.videoUrl || ""}
+                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
-                          updatedData[index].videoUrl = e.target.value;
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            videoUrl: e.target.value,
+                          };
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
 
-                    {/* VIDEO RUNTIME TIMING */}
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-[13px] font-medium text-slate-500 dark:text-gray-400">
-                        Video Length (in minutes)
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="20"
-                        className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
-                        value={item.videoLength}
-                        onChange={(e) => {
-                          const updatedData = [...courseContentData];
-                          updatedData[index].videoLength = e.target.value;
-                          setCourseContentData(updatedData);
-                        }}
-                      />
-                    </div>
-
-                    {/* VIDEO SUMMARY CONTEXT DESCRIPTION */}
+                    {/* VIDEO SUMMARY DESCRIPTION */}
                     <div className="flex flex-col gap-1.5">
                       <label className="text-[13px] font-medium text-slate-500 dark:text-gray-400">
                         Video Description
@@ -225,18 +230,22 @@ const CourseContent: FC<Props> = ({
                         rows={4}
                         placeholder="Describe the content covered in this specific curriculum chapter..."
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all resize-y"
-                        value={item.description}
+                        value={item.description || ""}
+                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
-                          updatedData[index].description = e.target.value;
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            description: e.target.value,
+                          };
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
 
-                    {/* ADDON ATTACHMENT RESOURCE LINKS MAPPING */}
+                    {/* ATTACHMENT RESOURCE LINKS MAPPING */}
                     <div className="space-y-4 pt-2">
-                      {item?.links.map((link: any, linkIndex: number) => (
+                      {item?.links?.map((link: any, linkIndex: number) => (
                         <div
                           key={`link-${index}-${linkIndex}`}
                           className="p-4 bg-slate-50/50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-white/10 rounded-xl space-y-3"
@@ -254,10 +263,7 @@ const CourseContent: FC<Props> = ({
                                     ? "text-slate-300 dark:text-gray-800 cursor-not-allowed"
                                     : "text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 cursor-pointer"
                                 }`}
-                              onClick={() =>
-                                linkIndex !== 0 &&
-                                handleRemoveLink(index, linkIndex)
-                              }
+                              onClick={() => handleRemoveLink(index, linkIndex)}
                             >
                               <AiOutlineDelete className="text-base" />
                             </button>
@@ -265,13 +271,18 @@ const CourseContent: FC<Props> = ({
 
                           <input
                             type="text"
-                            placeholder="Link Anchor Title (e.g., Download Github Repository Source)"
+                            placeholder="Link Anchor Title (e.g., Download Github Source)"
                             className="w-full bg-white dark:bg-transparent border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] transition-all"
-                            value={link.title}
+                            value={link.title || ""}
                             onChange={(e) => {
                               const updatedData = [...courseContentData];
-                              updatedData[index].links[linkIndex].title =
-                                e.target.value;
+                              updatedData[index].links = [
+                                ...updatedData[index].links,
+                              ];
+                              updatedData[index].links[linkIndex] = {
+                                ...updatedData[index].links[linkIndex],
+                                title: e.target.value,
+                              };
                               setCourseContentData(updatedData);
                             }}
                           />
@@ -279,11 +290,16 @@ const CourseContent: FC<Props> = ({
                             type="url"
                             placeholder="Target Destination URL Address (https://...)"
                             className="w-full bg-white dark:bg-transparent border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] transition-all"
-                            value={link.url}
+                            value={link.url || ""}
                             onChange={(e) => {
                               const updatedData = [...courseContentData];
-                              updatedData[index].links[linkIndex].url =
-                                e.target.value;
+                              updatedData[index].links = [
+                                ...updatedData[index].links,
+                              ];
+                              updatedData[index].links[linkIndex] = {
+                                ...updatedData[index].links[linkIndex],
+                                url: e.target.value,
+                              };
                               setCourseContentData(updatedData);
                             }}
                           />
@@ -311,8 +327,8 @@ const CourseContent: FC<Props> = ({
                       className="flex items-center gap-2 text-sm font-semibold text-[#37a39a] hover:text-[#2d857e] transition-all duration-200 bg-[#37a39a]/5 hover:bg-[#37a39a]/10 px-4 py-2 rounded-xl"
                       onClick={() => newContentHandler(item)}
                     >
-                      <AiOutlinePlusCircle className="text-base" /> Add New
-                      Video Content Item
+                      <FiEdit2 size={14} className="mr-0.5" />
+                      <span>Add New Video Content Item</span>
                     </button>
                   </div>
                 )}

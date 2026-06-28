@@ -1,30 +1,94 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
-import { FiEdit2, FiMail, FiUserPlus } from "react-icons/fi"; 
-import { useGetAllUsersQuery } from "../../../../redux/features/user/userApi";
+import { FiMail, FiUserPlus, FiX } from "react-icons/fi"; 
+import { 
+  useGetAllUsersQuery, 
+  useUpdateUserRoleMutation, 
+  useDeleteUserMutation 
+} from "../../../../redux/features/user/userApi"; 
 import Loader from "../../Loader/Loader";
 import { format } from "timeago.js";
+import { toast } from "react-hot-toast";
 
 type Props = {
   isTeam?: boolean; 
 };
 
 const AllUsers: FC<Props> = ({ isTeam = false }) => {
-  const { data, isLoading } = useGetAllUsersQuery({});
+
+  const { data, isLoading, refetch } = useGetAllUsersQuery({});
+  const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
+  const [deleteUser, { isLoading: isDeletingUser }] = useDeleteUserMutation();
+
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addTeamModalOpen, setAddTeamModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  
+  // Form States for Add Team Member
+  const [memberEmail, setMemberEmail] = useState("");
+  const [memberRole, setMemberRole] = useState("admin");
 
   const allUsers = data?.users || [];
 
-  // Filter out only admins if this component is rendered in "Team" mode
+
   const filteredUsers = isTeam 
     ? allUsers.filter((user: any) => user.role === "admin")
     : allUsers;
 
-  return (
-    <div className="w-full p-4 sm:p-6 md:p-10 font-Poppins box-border mt-14 md:mt-0 text-slate-800 dark:text-gray-100">
+  const handleDeleteConfirm = async () => {
+    if (!selectedUserId) return;
+    
+    try {
+  
+      await deleteUser(selectedUserId).unwrap();
       
-      {/* 🚀 HEADER SECTION (Safe flow alignment) */}
+      toast.success("Account permanently removed successfully!");
+      setDeleteModalOpen(false);
+      setSelectedUserId("");
+      refetch(); // Reload live roster metrics from the server
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to remove user node from repository.");
+    }
+  };
+
+  // 🛠️ HANDLER: Add Team Member (Updates role of an existing user by passing their email/id)
+  const handleAddTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!memberEmail.trim()) {
+      toast.error("Please provide a valid account email string.");
+      return;
+    }
+
+    // Find the user object in your current pool that matches the entered email
+    const targetUser = allUsers.find(
+      (user: any) => user.email.toLowerCase() === memberEmail.trim().toLowerCase()
+    );
+
+    if (!targetUser) {
+      toast.error("No registered account found with this email address.");
+      return;
+    }
+
+    try {
+      // ✅ Triggers your updateUserRole RTK Mutation endpoint using the target user's ID
+      await updateUserRole({ id: targetUser._id, role: memberRole }).unwrap();
+      
+      toast.success(`${targetUser.name || "User"} promoted to ${memberRole} successfully!`);
+      setAddTeamModalOpen(false);
+      setMemberEmail("");
+      refetch(); // Reload live roster to reflect role changes
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to alter account authorization properties.");
+    }
+  };
+
+  return (
+    <div className="w-full p-4 sm:p-6 md:p-10 font-Poppins box-border text-slate-800 dark:text-gray-100">
+      
+      {/* 🚀 HEADER SECTION */}
       <div className="w-full flex flex-col gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -38,10 +102,11 @@ const AllUsers: FC<Props> = ({ isTeam = false }) => {
           </p>
         </div>
 
-        {/* ✅ FIX: Button relocated here (below text, inside content grid flow) */}
+        {/* Add Team Member Trigger */}
         {isTeam && (
           <button
             type="button"
+            onClick={() => setAddTeamModalOpen(true)}
             className="flex items-center justify-center gap-2 px-5 h-[40px] bg-[#37a39a] hover:bg-[#2d857e] text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-md shadow-[#37a39a]/10 select-none whitespace-nowrap w-fit mt-1"
           >
             <FiUserPlus size={16} />
@@ -145,6 +210,10 @@ const AllUsers: FC<Props> = ({ isTeam = false }) => {
                       {/* DELETE TRIGGER */}
                       <button
                         type="button"
+                        onClick={() => {
+                          setSelectedUserId(item._id);
+                          setDeleteModalOpen(true);
+                        }}
                         className="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 dark:text-gray-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-500 dark:hover:text-rose-400 transition-all duration-200"
                         title="Delete User Account"
                       >
@@ -171,6 +240,122 @@ const AllUsers: FC<Props> = ({ isTeam = false }) => {
           </p>
         </div>
       )}
+
+      {/* 📋 POPUP MODAL 1: ADD NEW TEAM MEMBER */}
+      {addTeamModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-[450px] bg-white dark:bg-[#0b0c14] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden relative p-6 font-Poppins">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/5 mb-5">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Add New Team Member</h2>
+              <button 
+                type="button" 
+                disabled={isUpdatingRole}
+                onClick={() => setAddTeamModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddTeamMember} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Account Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  disabled={isUpdatingRole}
+                  value={memberEmail}
+                  onChange={(e) => setMemberEmail(e.target.value)}
+                  placeholder="e.g., user@skillstack.com"
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 h-[44px] text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] transition-all placeholder:text-slate-400 disabled:opacity-60"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Assigned Clearance Role
+                </label>
+                <select
+                  disabled={isUpdatingRole}
+                  value={memberRole}
+                  onChange={(e) => setMemberRole(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 h-[44px] text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] transition-all cursor-pointer disabled:opacity-60"
+                >
+                  <option value="admin" className="bg-white dark:bg-[#0b0c14]">Admin</option>
+                  <option value="user" className="bg-white dark:bg-[#0b0c14]">User (Student)</option>
+                </select>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-gray-100 dark:border-white/5 mt-6">
+                <button
+                  type="button"
+                  disabled={isUpdatingRole}
+                  onClick={() => setAddTeamModalOpen(false)}
+                  className="px-4 h-[38px] text-xs font-medium text-slate-500 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingRole}
+                  className="px-5 h-[38px] bg-[#37a39a] hover:bg-[#2d857e] text-white text-xs font-medium rounded-xl transition-all shadow-md shadow-[#37a39a]/5 flex items-center gap-2 disabled:opacity-80"
+                >
+                  {isUpdatingRole && (
+                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  <span>{isUpdatingRole ? "Updating..." : "Confirm Member"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ⚠️ POPUP MODAL 2: DELETE ACCOUNT CONFIRMATION */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-[400px] bg-white dark:bg-[#0b0c14] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-6 text-center">
+            
+            <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AiOutlineDelete size={22} />
+            </div>
+
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Permanent Deletion</h2>
+            <p className="text-sm text-slate-500 dark:text-gray-400 leading-relaxed mb-6">
+              Are you sure you want to delete this user? This action cannot be undone.
+            </p>
+
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setSelectedUserId("");
+                }}
+                className="w-1/2 h-[40px] text-xs font-medium text-slate-500 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-all disabled:opacity-50"
+              >
+                No, Keep Account
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingUser}
+                onClick={handleDeleteConfirm}
+                className="w-1/2 h-[40px] bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-xl transition-all shadow-md shadow-rose-600/10 flex items-center justify-center gap-2 disabled:opacity-80"
+              >
+                {isDeletingUser && (
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                )}
+                <span>{isDeletingUser ? "Deleting..." : "Yes, Delete User"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

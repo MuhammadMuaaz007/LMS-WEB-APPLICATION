@@ -12,7 +12,7 @@ export const courseApi = apiSlice.injectEndpoints({
     }),
     getAllCourses: builder.query({
       query: () => ({
-        url: "/get-courses",
+        url: "/get-all-admin-courses",
         method: "GET",
         Credential: "include" as const,
       }),

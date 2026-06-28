@@ -1,18 +1,33 @@
 "use client";
-import React, { useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
 import CourseContent from "./CourseContent";
 import CoursePreview from "./CoursePreview";
-import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
+import {
+  useEditCourseMutation,
+  useGetAllCoursesQuery,
+} from "@/redux/features/courses/coursesApi";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const CreateCourse = () => {
-  const [active, setActive] = useState(0);
-  const [createCourse, { isLoading }] = useCreateCourseMutation();
+type Props = {
+  id: string;
+};
 
+const EditCourse: FC<Props> = ({ id }) => {
+  const { data, refetch } = useGetAllCoursesQuery(
+    undefined, // ✅ Using undefined instead of empty object to ensure correct cache mapping
+    { refetchOnMountOrArgChange: true },
+  );
+  
+  const EditCourseData = data?.courses?.find(
+    (course: any) => course._id === id,
+  );
+
+  const [active, setActive] = useState(0);
+  const [editCourse, { isLoading: isEditCourseLoading }] = useEditCourseMutation();
   const router = useRouter();
 
   const [courseInfo, setCourseInfo] = useState({
@@ -71,14 +86,13 @@ const CreateCourse = () => {
       }),
     );
 
-    return {
+    const payload: any = {
       name: courseInfo.name,
       description: courseInfo.description,
       price: Number(courseInfo.price),
       category: courseInfo.category,
       estimatedPrice: Number(courseInfo.estimatedPrice),
       tags: courseInfo.tags,
-      thumbnail: courseInfo.thumbnail,
       level: courseInfo.level,
       demoUrl: courseInfo.demoUrl,
       totalVideos: courseContentData.length,
@@ -86,26 +100,59 @@ const CreateCourse = () => {
       prerequisites: formattedPrerequisites,
       courseData: formattedCourseContentData,
     };
+
+    // ✅ PERFORMANCE OPTIMIZATION: Only attach thumbnail text if a brand new file was chosen
+    // (Prevents resending unchanged cloud storage objects/URLs back across HTTP pipes)
+    if (typeof courseInfo.thumbnail === "string" && courseInfo.thumbnail.startsWith("data:image")) {
+      payload.thumbnail = courseInfo.thumbnail;
+    }
+
+    return payload;
   };
-  console.log("Formatted Course Data:",);
 
   const handleSubmit = async () => {};
 
   const handleCourseCreate = async () => {
-    const dynamicFinalData = getFormattedCourseData();
+    const formattedData = getFormattedCourseData();
 
     try {
-      await createCourse(dynamicFinalData).unwrap();
+      // 1. Fire update request to server
+      await editCourse({ id: EditCourseData._id, data: formattedData }).unwrap();
 
-      toast.success("Course created successfully!");
+      toast.success("Course updated successfully!");
+      
+      // 2. Redirect to dashboard immediately without blocking the UI thread
       router.push("/admin/courses");
+
+      // 3. Trigger refetch concurrently in the background so it loads while navigating
+      if (refetch) {
+        refetch();
+      }
     } catch (error: any) {
-      console.error("Mutation error payload:", error);
       const errorMessage =
-        error?.data?.message || "Failed to create course. Please try again.";
+        error?.data?.message || "Failed to update course. Please try again.";
       toast.error(errorMessage);
     }
   };
+
+  useEffect(() => {
+    if (EditCourseData) {
+      setCourseInfo({
+        name: EditCourseData.name,
+        description: EditCourseData.description,
+        price: EditCourseData.price?.toString() || "",
+        estimatedPrice: EditCourseData.estimatedPrice?.toString() || "",
+        category: EditCourseData.category || "",
+        tags: EditCourseData.tags || "",
+        level: EditCourseData.level || "",
+        demoUrl: EditCourseData.demoUrl || "",
+        thumbnail: EditCourseData.thumbnail || "",
+      });
+      setBenefits(EditCourseData.benefits || [{ title: "" }]);
+      setPrerequisites(EditCourseData.prerequisites || [{ title: "" }]);
+      setCourseContentData(EditCourseData.courseData || []);
+    }
+  }, [EditCourseData]);
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen bg-transparent">
@@ -155,8 +202,9 @@ const CreateCourse = () => {
             active={active}
             setActive={setActive}
             courseData={getFormattedCourseData()}
-            isLoading={isLoading}
+            isLoading={isEditCourseLoading}
             handleCourseCreate={handleCourseCreate}
+            isEdit={true}
           />
         )}
       </div>
@@ -171,4 +219,4 @@ const CreateCourse = () => {
   );
 };
 
-export default CreateCourse;
+export default EditCourse;

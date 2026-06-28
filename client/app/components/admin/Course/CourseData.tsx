@@ -2,7 +2,7 @@
 
 import type { FC } from "react";
 import toast from "react-hot-toast";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlinePlusCircle, AiOutlineDelete } from "react-icons/ai"; // ✅ Added delete icon for bad entries
 
 type Props = {
   benefits: { title: string }[];
@@ -23,7 +23,7 @@ const CourseData: FC<Props> = ({
 }) => {
   const handleBenefitChange = (index: number, value: string) => {
     const updatedBenefits = [...benefits];
-    updatedBenefits[index].title = value;
+    updatedBenefits[index] = { ...updatedBenefits[index], title: value }; // ✅ Safe object cloning
     setBenefits(updatedBenefits);
   };
 
@@ -31,9 +31,17 @@ const CourseData: FC<Props> = ({
     setBenefits([...benefits, { title: "" }]);
   };
 
+  const handleRemoveBenefit = (index: number) => {
+    if (benefits.length > 1) {
+      const updatedBenefits = [...benefits];
+      updatedBenefits.splice(index, 1);
+      setBenefits(updatedBenefits);
+    }
+  };
+
   const handlePrerequisitesChange = (index: number, value: string) => {
     const updatedPrerequisites = [...prerequisites];
-    updatedPrerequisites[index].title = value;
+    updatedPrerequisites[index] = { ...updatedPrerequisites[index], title: value }; // ✅ Safe object cloning
     setPrerequisites(updatedPrerequisites);
   };
 
@@ -41,15 +49,23 @@ const CourseData: FC<Props> = ({
     setPrerequisites([...prerequisites, { title: "" }]);
   };
 
+  const handleRemovePrerequisite = (index: number) => {
+    if (prerequisites.length > 1) {
+      const updatedPrerequisites = [...prerequisites];
+      updatedPrerequisites.splice(index, 1);
+      setPrerequisites(updatedPrerequisites);
+    }
+  };
+
   const prevButton = () => {
     setActive(active - 1);
   };
-  // it checks if the benefits and prerequisites arrays have at least one non-empty title before allowing the user to proceed to the next step. If either array is empty, it shows an error toast message.
+
   const handleOptions = () => {
-    if (
-      benefits.some((benefit) => benefit.title.trim() !== "") &&
-      prerequisites.some((prereq) => prereq.title.trim() !== "")
-    ) {
+    const hasValidBenefit = benefits?.some((benefit) => benefit?.title?.trim() !== "");
+    const hasValidPrereq = prerequisites?.some((prereq) => prereq?.title?.trim() !== "");
+
+    if (hasValidBenefit && hasValidPrereq) {
       setActive(active + 1);
     } else {
       toast.error(
@@ -73,16 +89,27 @@ const CourseData: FC<Props> = ({
         </label>
 
         <div className="space-y-3">
-          {benefits.map((benefit: any, index: number) => (
-            <input
-              type="text"
-              key={index}
-              placeholder="You will be able to build a full stack LMS Platform..."
-              required
-              className={inputTheme}
-              value={benefit.title}
-              onChange={(e) => handleBenefitChange(index, e.target.value)}
-            />
+          {benefits?.map((benefit: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 w-full">
+              <input
+                type="text"
+                placeholder="You will be able to build a full stack LMS Platform..."
+                required
+                className={inputTheme}
+                value={typeof benefit === "string" ? benefit : benefit?.title || ""} // ✅ Gracefully handles string arrays or object models from DB
+                onChange={(e) => handleBenefitChange(index, e.target.value)}
+              />
+              {benefits.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveBenefit(index)}
+                  className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors cursor-pointer"
+                  title="Remove Item"
+                >
+                  <AiOutlineDelete size={20} />
+                </button>
+              )}
+            </div>
           ))}
         </div>
 
@@ -103,16 +130,27 @@ const CourseData: FC<Props> = ({
         </label>
 
         <div className="space-y-3">
-          {prerequisites.map((prerequisite: any, index: number) => (
-            <input
-              type="text"
-              key={index}
-              placeholder="You need basic knowledge of MERN stack"
-              required
-              className={inputTheme}
-              value={prerequisite.title}
-              onChange={(e) => handlePrerequisitesChange(index, e.target.value)}
-            />
+          {prerequisites?.map((prerequisite: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 w-full">
+              <input
+                type="text"
+                required
+                placeholder="You need basic knowledge of MERN stack"
+                className={inputTheme}
+                value={typeof prerequisite === "string" ? prerequisite : prerequisite?.title || ""} // ✅ Gracefully handles string arrays or object models from DB
+                onChange={(e) => handlePrerequisitesChange(index, e.target.value)}
+              />
+              {prerequisites.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemovePrerequisite(index)}
+                  className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors cursor-pointer"
+                  title="Remove Item"
+                >
+                  <AiOutlineDelete size={20} />
+                </button>
+              )}
+            </div>
           ))}
         </div>
 
