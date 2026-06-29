@@ -1,6 +1,20 @@
 "use client";
 
-import { useState, type FC } from "react";
+import { useGetHeroDataQuery } from "@/redux/features/layout/LayoutApi";
+import {
+  useState,
+  type FC,
+  type ChangeEvent,
+  type FormEvent,
+  type DragEvent,
+} from "react";
+
+// Added clean TypeScript interfaces
+interface Category {
+  _id?: string;
+  id?: string | number;
+  title: string;
+}
 
 type Props = {
   courseInfo: any;
@@ -15,45 +29,22 @@ const CourseInformation: FC<Props> = ({
   active,
   setActive,
 }) => {
-  const categories: Category[] = [
-    { id: 1, title: "Web Development" },
-    { id: 2, title: "Frontend Development" },
-    { id: 3, title: "Backend Development" },
-    { id: 4, title: "Full-Stack Development" },
-    { id: 5, title: "MERN Stack" },
-    { id: 6, title: "React.js" },
-    { id: 7, title: "Next.js" },
-    { id: 8, title: "Node.js" },
-    { id: 9, title: "Express.js" },
-    { id: 10, title: "MongoDB" },
-    { id: 11, title: "JavaScript" },
-    { id: 12, title: "TypeScript" },
-    { id: 13, title: "HTML & CSS" },
-    { id: 14, title: "Python" },
-    { id: 15, title: "Java" },
-    { id: 16, title: "C++" },
-    { id: 17, title: "Data Structures & Algorithms" },
-    { id: 18, title: "Database Management" },
-    { id: 19, title: "DevOps" },
-    { id: 20, title: "Docker" },
-    { id: 21, title: "Kubernetes" },
-    { id: 22, title: "AWS" },
-    { id: 23, title: "Cybersecurity" },
-    { id: 24, title: "Artificial Intelligence" },
-    { id: 25, title: "Machine Learning" },
-    { id: 26, title: "Data Science" },
-    { id: 27, title: "UI/UX Design" },
-    { id: 28, title: "Git & GitHub" },
-  ];
+  // 1. Fetch backend layout data
+  const { data, isLoading } = useGetHeroDataQuery("Categories", {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const backendCategories: Category[] =
+    data?.layout?.categories || data?.categories || [];
 
   const [dragging, setDragging] = useState(false);
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setActive(active + 1);
   };
 
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -64,17 +55,17 @@ const CourseInformation: FC<Props> = ({
     }
   };
 
-  const handleDragOver = (e: any) => {
+  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragging(true);
   };
 
-  const handleDragLeave = (e: any) => {
+  const handleDragLeave = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragging(false);
   };
 
-  const handleDrop = (e: any) => {
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setDragging(false);
 
@@ -104,7 +95,7 @@ const CourseInformation: FC<Props> = ({
             type="text"
             required
             value={courseInfo.name || ""}
-            onChange={(e: any) =>
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setCourseInfo({ ...courseInfo, name: e.target.value })
             }
             id="name"
@@ -124,7 +115,7 @@ const CourseInformation: FC<Props> = ({
             placeholder="Write an amazing description for your course..."
             className={`${inputTheme} resize-none`}
             value={courseInfo.description || ""}
-            onChange={(e: any) =>
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
               setCourseInfo({ ...courseInfo, description: e.target.value })
             }
           />
@@ -140,7 +131,7 @@ const CourseInformation: FC<Props> = ({
               type="number"
               required
               value={courseInfo.price || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setCourseInfo({ ...courseInfo, price: e.target.value })
               }
               id="price"
@@ -156,7 +147,7 @@ const CourseInformation: FC<Props> = ({
             <input
               type="number"
               value={courseInfo.estimatedPrice || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setCourseInfo({ ...courseInfo, estimatedPrice: e.target.value })
               }
               id="estimatedPrice"
@@ -176,7 +167,7 @@ const CourseInformation: FC<Props> = ({
               type="text"
               required
               value={courseInfo.tags || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setCourseInfo({ ...courseInfo, tags: e.target.value })
               }
               id="tags"
@@ -192,19 +183,20 @@ const CourseInformation: FC<Props> = ({
               id="category"
               className={`${inputTheme} appearance-none cursor-pointer`}
               value={courseInfo.category || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setCourseInfo({ ...courseInfo, category: e.target.value })
               }
+              disabled={isLoading} // Disable input while loading
             >
               <option className="bg-white dark:bg-slate-800" value="">
-                Select Category
+                {isLoading ? "Loading categories..." : "Select Category"}
               </option>
-              {categories &&
-                categories.map((item: any) => (
+              {!isLoading &&
+                backendCategories.map((item: Category, index: number) => (
                   <option
                     className="bg-white dark:bg-slate-800"
                     value={item.title}
-                    key={item.title}
+                    key={item._id || item.id || index}
                   >
                     {item.title}
                   </option>
@@ -223,7 +215,7 @@ const CourseInformation: FC<Props> = ({
               id="level"
               className={`${inputTheme} appearance-none cursor-pointer`}
               value={courseInfo.level || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                 setCourseInfo({ ...courseInfo, level: e.target.value })
               }
             >
@@ -253,7 +245,7 @@ const CourseInformation: FC<Props> = ({
               type="text"
               required
               value={courseInfo.demoUrl || ""}
-              onChange={(e: any) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setCourseInfo({ ...courseInfo, demoUrl: e.target.value })
               }
               id="demoUrl"
@@ -267,7 +259,6 @@ const CourseInformation: FC<Props> = ({
         <div>
           <label className={labelTheme}>Course Thumbnail</label>
           <div className="mt-2">
-            {/* Added handleFileChange here */}
             <input
               type="file"
               accept="image/*"
@@ -289,7 +280,6 @@ const CourseInformation: FC<Props> = ({
               {courseInfo.thumbnail ? (
                 <div className="w-full relative rounded-lg overflow-hidden max-h-[300px]">
                   <img
-                    /* ✅ Checks if it's an object with an inner url property first, otherwise treats it as a base64 string */
                     src={
                       typeof courseInfo.thumbnail === "object" &&
                       courseInfo.thumbnail?.url
