@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${josefin.variable} !bg-white bg-no-repeat dark:bg-linear-to-b dark:from-gray-900 dark:to-black duration-300`}
+        className={`${poppins.variable} ${josefin.variable} min-h-screen bg-fixed bg-[radial-gradient(circle_at_top_left,rgba(55,163,154,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(77,98,217,0.10),transparent_26%),linear-gradient(180deg,#f8fafc_0%,#eef6ff_45%,#ffffff_100%)] text-slate-900 duration-300 dark:bg-[radial-gradient(circle_at_top_left,rgba(55,163,154,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(77,98,217,0.10),transparent_26%),linear-gradient(180deg,#050816_0%,#0b1120_55%,#020617_100%)] dark:text-white`}
       >
         <Providers>
           <SessionProvider>

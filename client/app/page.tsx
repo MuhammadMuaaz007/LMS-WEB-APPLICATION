@@ -3,18 +3,21 @@ import React, { FC, useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Route/Hero";
 import Heading from "./utils/Heading";
-
+import Courses from "./components/Route/Courses";
+import Reviews from "./components/Route/Reviews";
+import Faq from "./components/FAQ/Faq";
+import Footer from "./components/Footer";
 interface Props {
   name: string;
 }
 
-const Page: FC<Props> = (props) => {
+const Page: FC<Props> = () => {
   const [open, setOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState(0);
+  const [activeItem] = useState(0);
   const [route, setRoute] = useState("Login");
 
   return (
-    <div>
+    <div className="relative overflow-hidden bg-slate-50 dark:bg-slate-950">
       <Heading
         title="SkillStack - Learn and Grow Your Skills"
         description="ELearning is the Platform for students to learn and get help from teachers"
@@ -28,6 +31,10 @@ const Page: FC<Props> = (props) => {
         setRoute={setRoute}
       />
       <Hero />
+      <Courses />
+      <Reviews />
+      <Faq />
+      <Footer />
     </div>
   );
 };
