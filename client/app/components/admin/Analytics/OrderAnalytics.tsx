@@ -19,50 +19,49 @@ type Props = {
 
 export default function OrdersAnalytics({ isDashboard }: Props) {
   // 1. Fetch live backend orders data
-  const { data, isLoading } = useGetOrderAnalyticsQuery({});
-console.log("OrdersAnalytics - data:", data);
-  const analyticsData: { name: string; Count: number }[] = [];
+  // const { data, isLoading } = useGetOrderAnalyticsQuery({});
+  // const analyticsData: { name: string; Count: number }[] = [];
 
 
-  if (data && data.orders?.last12Months) {
-    data.orders.last12Months.forEach((item: any) => {
-      // Mapping 'item.month' or 'item.name' (matching your exact API field context)
-      analyticsData.push({ name: item.month || item.name, Count: item.count });
-    });
-  }
-  // const analyticsData = [
-  //   {
-  //     name: "Page A",
-  //     Count: 4000,
-  //   },
-  //   {
-  //     name: "Page B",
-  //     Count: 3000,
-  //   },
-  //   {
-  //     name: "Page C",
-  //     Count: 5000,
-  //   },
-  //   {
-  //     name: "Page D",
-  //     Count: 1000,
-  //   },
-  //   {
-  //     name: "Page E",
-  //     Count: 4000,
-  //   },
-  //   {
-  //     name: "Page F",
-  //     Count: 800,
-  //   },
-  //   {
-  //     name: "Page G",
-  //     Count: 200,
-  //   },
-  // ];
-  if (isLoading) {
-    return <Loader />;
-  }
+  // if (data && data.orders?.last12Months) {
+  //   data.orders.last12Months.forEach((item: any) => {
+  //     // Mapping 'item.month' or 'item.name' (matching your exact API field context)
+  //     analyticsData.push({ name: item.month || item.name, Count: item.count });
+  //   });
+  // }
+  const analyticsData = [
+    {
+      name: "Page A",
+      Count: 4000,
+    },
+    {
+      name: "Page B",
+      Count: 3000,
+    },
+    {
+      name: "Page C",
+      Count: 5000,
+    },
+    {
+      name: "Page D",
+      Count: 1000,
+    },
+    {
+      name: "Page E",
+      Count: 4000,
+    },
+    {
+      name: "Page F",
+      Count: 800,
+    },
+    {
+      name: "Page G",
+      Count: 200,
+    },
+  ];
+  // if (isLoading) {
+  //   return <Loader />;
+  // }
 
   return (
     <div

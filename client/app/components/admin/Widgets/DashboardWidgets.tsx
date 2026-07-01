@@ -17,6 +17,21 @@ type Props = {
   value?: number;
 };
 
+const getProgressValue = (currentMonth?: number, previousMonth?: number) => {
+  const current = currentMonth ?? 0;
+  const previous = previousMonth ?? 0;
+
+  if (!current && !previous) {
+    return 0;
+  }
+
+  if (!previous) {
+    return current > 0 ? 100 : 0;
+  }
+
+  return Math.min(Math.max((current / previous) * 100, 0), 100);
+};
+
 const CircularProgressWithLabel: FC<Props> = ({ open, value }) => {
   return (
     <Box sx={{ position: "relative", display: "inline-flex" }}>
@@ -125,7 +140,13 @@ const DashboardWidgets: FC<Props> = ({ open }) => {
               </h5>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <CircularProgressWithLabel value={100} open={open} />
+              <CircularProgressWithLabel
+                value={getProgressValue(
+                  ordersComparePercentage?.currentMonth,
+                  ordersComparePercentage?.previousMonth,
+                )}
+                open={open}
+              />
               <h5
                 className={`text-center pt-3 text-sm font-semibold ${ordersComparePercentage?.percentChange >= 0 ? "text-emerald-500" : "text-rose-500"}`}
               >
@@ -150,7 +171,13 @@ const DashboardWidgets: FC<Props> = ({ open }) => {
               </h5>
             </div>
             <div className="flex flex-col items-center justify-center">
-              <CircularProgressWithLabel value={100} open={open} />
+              <CircularProgressWithLabel
+                value={getProgressValue(
+                  userComparePercentage?.currentMonth,
+                  userComparePercentage?.previousMonth,
+                )}
+                open={open}
+              />
               <h5
                 className={`text-center pt-3 text-sm font-semibold ${userComparePercentage?.percentChange >= 0 ? "text-emerald-500" : "text-rose-500"}`}
               >

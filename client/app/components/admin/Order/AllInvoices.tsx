@@ -20,7 +20,6 @@ const AllInvoices = ({ isDashboard }: Props) => {
   const { data: usersData } = useGetAllUsersQuery({});
   const { data: coursesData } = useGetAllCoursesQuery({});
 
-
   // ==========================================
   // TYPE 1: MOCK RANDOM DATA (CURRENTLY ACTIVE)
   // // ==========================================
@@ -107,26 +106,29 @@ const AllInvoices = ({ isDashboard }: Props) => {
     { field: "price", headerName: "Price", flex: 0.4 },
     ...(isDashboard
       ? [{ field: "created_at", headerName: "Created At", flex: 0.5 }]
-      : [
-          {
-            field: "emailAction",
-            headerName: "Action",
-            flex: 0.2,
-            sortable: false,
-            renderCell: (params: any) => {
-              return (
-                <div className="flex items-center h-full">
-                  <a href={`mailto:${params.row.userEmail}`}>
-                    <AiOutlineMail
-                      className="text-slate-600 dark:text-gray-300 hover:text-[#37a39a] dark:hover:text-[#37a39a] transition-colors"
-                      size={20}
-                    />
-                  </a>
-                </div>
-              );
-            },
-          },
-        ]),
+      : []),
+    {
+      field: "emailAction",
+      headerName: "Action",
+      flex: isDashboard ? 0.3 : 0.2,
+      sortable: false,
+      renderCell: (params: any) => {
+        return (
+          <div className="flex items-center h-full">
+            <a
+              href={`mailto:${params.row.userEmail}`}
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-500 dark:text-slate-400 hover:text-[#37a39a] dark:hover:text-[#37a39a] transition-all duration-200 group"
+              title="Send Email"
+            >
+              <AiOutlineMail
+                className="transform group-hover:scale-110 transition-transform duration-200"
+                size={20}
+              />
+            </a>
+          </div>
+        );
+      },
+    },
   ];
 
   const rows: any = [];
