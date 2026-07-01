@@ -19,7 +19,7 @@ const page = () => {
       <AdminSidebar />
       {/* Offset content by sidebar width — collapsed (75px) on mobile, expanded (260px) on desktop */}
       <div className="ml-[75px] md:ml-[260px] w-full min-h-screen transition-all duration-300">
-        <DashBoardHero />
+        <DashBoardHero isDashboard={true} />
       </div>
     </div>
   </AdminProtected>

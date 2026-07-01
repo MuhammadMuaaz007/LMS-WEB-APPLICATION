@@ -128,7 +128,7 @@ const CourseContent: FC<Props> = ({
                   <div className="flex-1 min-w-0 pr-4">
                     {isCollapsed[index] && item.title ? (
                       <p className="font-medium text-slate-700 dark:text-gray-200 text-[15px] truncate">
-                        {index + 1}. {item.title}
+                        {index + 1}. {item.title} {item.videoLength ? `(${item.videoLength} min)` : ""}
                       </p>
                     ) : (
                       <span className="text-xs font-semibold uppercase tracking-wider text-[#37a39a]/90">
@@ -187,7 +187,6 @@ const CourseContent: FC<Props> = ({
                         placeholder="e.g., Introduction to Architecture Layouts..."
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
                         value={item.title || ""}
-                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
                           updatedData[index] = {
@@ -209,12 +208,33 @@ const CourseContent: FC<Props> = ({
                         placeholder="e.g., https://vimeo.com/stream-id"
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
                         value={item.videoUrl || ""}
-                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
                           updatedData[index] = {
                             ...updatedData[index],
                             videoUrl: e.target.value,
+                          };
+                          setCourseContentData(updatedData);
+                        }}
+                      />
+                    </div>
+
+                    {/* VIDEO LENGTH (MINUTES) */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-medium text-slate-500 dark:text-gray-400">
+                        Video Length (in minutes)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="e.g., 15"
+                        className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all"
+                        value={item.videoLength || ""}
+                        onChange={(e) => {
+                          const updatedData = [...courseContentData];
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            videoLength: e.target.value,
                           };
                           setCourseContentData(updatedData);
                         }}
@@ -231,7 +251,6 @@ const CourseContent: FC<Props> = ({
                         placeholder="Describe the content covered in this specific curriculum chapter..."
                         className="w-full bg-slate-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-gray-100 focus:outline-none focus:border-[#37a39a] focus:ring-1 focus:ring-[#37a39a] transition-all resize-y"
                         value={item.description || ""}
-                        // ✅ Added operational change binding safely cloning object nodes
                         onChange={(e) => {
                           const updatedData = [...courseContentData];
                           updatedData[index] = {

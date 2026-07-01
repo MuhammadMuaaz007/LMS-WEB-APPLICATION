@@ -71,6 +71,7 @@ const CreateCourse = () => {
       }),
     );
 
+    
     return {
       name: courseInfo.name,
       description: courseInfo.description,

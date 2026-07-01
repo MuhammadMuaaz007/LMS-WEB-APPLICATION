@@ -5,9 +5,13 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { format } from "timeago.js";
 import ThemeSwitcher from "../../../app/utils/ThemeSwitcher";
 
-const DashboardHeader: FC = () => {
+type Props = {
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+};
+const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
   // Local state managing open/close since props are removed
-  const [open, setOpen] = useState(false);
+
   const headerRef = useRef<HTMLDivElement>(null);
 
   // Static placeholder data
