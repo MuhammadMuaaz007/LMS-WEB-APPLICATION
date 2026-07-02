@@ -14,6 +14,17 @@ import ejs from "ejs";
 import sendMailer from "../utils/sendmail.js";
 import NotificationModel from "../models/notification.model.js";
 import axios from "axios";
+
+// Helper function to update redis with the exact stripped-down layout expected by getSingleCourse
+const updateCourseCache = async (courseId: string) => {
+  const cleanCourse = await CourseModel.findById(courseId).select(
+    "-courseData.videoUrl -courseData.suggestion -courseData.question -courseData.links",
+  );
+  if (cleanCourse) {
+    await redis.set(courseId, JSON.stringify(cleanCourse), "EX", 604800); // 7 Days
+  }
+};
+
 // upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -39,7 +50,6 @@ export const uploadCourse = CatchAsyncError(
 );
 
 // edit course
-
 export const editCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -76,6 +86,9 @@ export const editCourse = CatchAsyncError(
         runValidators: true,
       });
 
+      // 🔥 UPDATED: Sync changes to Redis Cache
+      await updateCourseCache(courseId);
+
       res.status(200).json({
         success: true,
         course,
@@ -87,7 +100,6 @@ export const editCourse = CatchAsyncError(
 );
 
 // get single course
-
 export const getSingleCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -134,7 +146,6 @@ export const getAllCourses = CatchAsyncError(
 );
 
 // get course by the user
-
 export const getCourseByUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -164,7 +175,6 @@ export const getCourseByUser = CatchAsyncError(
 );
 
 //add question in course
-
 interface IAddQuestionData {
   question: string;
   courseId: string;
@@ -202,6 +212,10 @@ export const addQuestion = CatchAsyncError(
       });
 
       await course?.save();
+
+      // 🔥 UPDATED: Sync structural upgrades down to Redis Cache
+      await updateCourseCache(courseId);
+
       res.status(200).json({
         success: true,
         course,
@@ -258,6 +272,9 @@ export const addAnswer = CatchAsyncError(
 
       await course?.save();
 
+      // 🔥 UPDATED: Sync fresh responses to Redis Cache
+      await updateCourseCache(courseId);
+
       if (req.user?._id === question.user._id) {
         await NotificationModel.create({
           userId: req.user?._id.toString(),
@@ -269,11 +286,6 @@ export const addAnswer = CatchAsyncError(
           name: question.user.name,
           title: courseContent.title,
         };
-
-        // const html = await ejs.renderFile(
-        //   path.join(__dirname, "../mails/question-reply.ejs"),
-        //   data,
-        // );
 
         try {
           await sendMailer({
@@ -298,10 +310,8 @@ export const addAnswer = CatchAsyncError(
 );
 
 // add review
-//add reviews;
-
 interface IAddReview {
-  rating: Number;
+  rating: number;
   review: string;
 }
 
@@ -336,12 +346,12 @@ export const addReview = CatchAsyncError(
       if (course) {
         course.rating = sum / course.reviews.length;
       }
+
+      // 1. Save to MongoDB
       await course?.save();
-      // const notification = {
-      //   title: "New Review Received",
-      //   message: `${req.user?.name} has given a review in ${course?.name}`,
-      // };
-      // await NotificationModel.create(notification);
+
+      // 2. Clear out projections accurately in Redis
+      await updateCourseCache(courseId);
 
       res.status(200).json({
         success: true,
@@ -383,6 +393,10 @@ export const addReviewReply = CatchAsyncError(
       }
       review.commentReplies?.push(reviewReply);
       await course?.save();
+
+      // 🔥 UPDATED: Overwrite projection payload in Redis securely
+      await updateCourseCache(courseId);
+
       res.status(200).json({
         success: true,
         course,
@@ -405,7 +419,6 @@ export const getAllCoursesAdmin = CatchAsyncError(
 );
 
 // delete course only for admin
-
 export const deleteCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -446,12 +459,10 @@ export const generateVideoUrl = CatchAsyncError(
         },
       );
 
-      // ✅ Manually format the playbackInfo object VdoCipher expects
       const playbackInfo = Buffer.from(
         JSON.stringify({ videoId: videoId }),
       ).toString("base64");
 
-      // Send both to your frontend
       res.json({
         otp: response.data.otp,
         playbackInfo: playbackInfo,
