@@ -7,6 +7,10 @@ import CourseModel from "../models/course.model.js";
 import { getAllOrdersService, newOrder } from "../services/order.service.js";
 import sendMailer from "../utils/sendmail.js";
 import NotificationModel from "../models/notification.model.js";
+import "dotenv/config";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 // create order
 export const createOrder = CatchAsyncError(
@@ -77,6 +81,37 @@ export const getAllOrders = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllOrdersService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  },
+);
+
+export const sendStripePublishableKey = CatchAsyncError(
+  async (req: Request, res: Response) => {
+    res.status(200).json({
+      publishablekey: process.env.STRIPE_PUBLISHABLE_KEY,
+    });
+  },
+);
+
+export const newPayments = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const myPayment = await stripe.paymentIntents.create({
+        amount: req.body.amount,
+        currency: "USD",
+        metadata: {
+          company: "SkillStack",
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+      res.status(200).json({
+        success: true,
+        client_secret: myPayment.client_secret,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

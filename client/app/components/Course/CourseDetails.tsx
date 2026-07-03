@@ -4,7 +4,7 @@ import CoursePlayer from "@/app/utils/CoursePlayer";
 import Ratings from "@/app/utils/Ratings";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { IoCheckmarkDoneOutline, IoCloseOutline } from "react-icons/io5";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import { format } from "timeago.js";
 
@@ -15,10 +15,10 @@ import CourseContentList from "./CourseContentList";
 type Props = {
   data: any;
   setRoute: (route: string) => void;
-  setOpen: (open: boolean) => void;
 };
 
-const CourseDetails = ({ data, setRoute, setOpen: openAuthModal }: Props) => {
+const CourseDetails = ({ data, setRoute }: Props) => {
+  const [open, setOpen] = useState(false);
   const { data: userData } = useLoadUserQuery(undefined, {});
   const [user, setUser] = useState<any>();
   const [reversedReviews, setReversedReviews] = useState<any[]>([]);
@@ -50,6 +50,7 @@ const CourseDetails = ({ data, setRoute, setOpen: openAuthModal }: Props) => {
       openAuthModal(true);
     } else {
       // Direct enrollment logic
+      setOpen(true);
     }
   };
 
@@ -223,7 +224,7 @@ const CourseDetails = ({ data, setRoute, setOpen: openAuthModal }: Props) => {
                             </span>
                           </div>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
                 ))}
@@ -297,6 +298,21 @@ const CourseDetails = ({ data, setRoute, setOpen: openAuthModal }: Props) => {
           </div>
         </div>
       </div>
+      {open && (
+        <>
+          <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center">
+            <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3">
+              <div className="w-full flex justify-end">
+                <IoCloseOutline
+                  size={40}
+                  className="text-black cursor-pointer"
+                  onClick={() => setOpen(false)}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
