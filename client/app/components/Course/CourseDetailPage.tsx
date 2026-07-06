@@ -18,8 +18,8 @@ const CourseDetailPage: FC<Props> = ({ id }) => {
   const [route, setRoute] = useState("");
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useGetCourseDetailsQuery(id);
-  const { data: config } = useGetStripePublishableKeyQuery({});
-  const [createPaymentIntent, { data: paymentIntentData }] =
+  const { data: config , } = useGetStripePublishableKeyQuery({});
+  const [createPaymentIntent, { data: paymentIntentData , isLoading: isConfigLoading}] =
     useCreatePaymentIntentMutation();
   const [stripePromise, setStripePromise] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
@@ -41,7 +41,7 @@ const CourseDetailPage: FC<Props> = ({ id }) => {
 
   return (
     <>
-      {isLoading ? (
+      {isLoading || isConfigLoading ? (
         <Loader />
       ) : (
         <div>

@@ -26,6 +26,7 @@ const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
   const { data: userData } = useLoadUserQuery(undefined, {});
   const [user, setUser] = useState<any>();
   const [reversedReviews, setReversedReviews] = useState<any[]>([]);
+  console.log(data);
 
   useEffect(() => {
     setUser(userData?.user);

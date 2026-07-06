@@ -71,19 +71,27 @@ export const createOrder = CatchAsyncError(
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 500));
       }
+
       // add course to user's courses
       user?.courses.push(courseId);
-      redis.set(req.user?._id, JSON.stringify(user), "EX", 3600);
+      await redis.set(req.user?._id, JSON.stringify(user), "EX", 3600);
+
       await NotificationModel.create({
         userId: user?._id.toString(),
         title: "New Order",
         message: `You have successfully purchased the course ${course.name}`,
       });
+
       // increment the purchased count of the course
       course.purchased = (course.purchased || 0) + 1;
-      // save the user and course
+
+      // save the user and course changes to MongoDB
       await user?.save();
       await course?.save();
+
+      // 🔥 FIX: Evict the old course cache from Redis so it syncs up on next load
+      await redis.del(courseId.toString());
+
       newOrder(data, res, next);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
