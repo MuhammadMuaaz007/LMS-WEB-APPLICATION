@@ -9,6 +9,7 @@ import sendMailer from "../utils/sendmail.js";
 import NotificationModel from "../models/notification.model.js";
 import "dotenv/config";
 import Stripe from "stripe";
+import { redis } from "../utils/redis.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -17,6 +18,19 @@ export const createOrder = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { courseId, payment_info } = req.body;
+
+      if (payment_info) {
+        if ("id" in payment_info) {
+          const paymentIntentId = payment_info.id;
+
+          const paymentIntent =
+            await stripe.paymentIntents.retrieve(paymentIntentId);
+
+          if (paymentIntent.status !== "succeeded") {
+            return next(new ErrorHandler("Payment not authorized", 400));
+          }
+        }
+      }
       const user = await userModel.findById(req.user?._id);
       const courseExistInUser = user?.courses.some(
         (course: any) => course._id.toString() === courseId,
@@ -59,6 +73,7 @@ export const createOrder = CatchAsyncError(
       }
       // add course to user's courses
       user?.courses.push(courseId);
+      redis.set(req.user?._id, JSON.stringify(user), "EX", 3600);
       await NotificationModel.create({
         userId: user?._id.toString(),
         title: "New Order",

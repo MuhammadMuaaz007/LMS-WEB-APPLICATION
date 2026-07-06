@@ -11,13 +11,17 @@ import { format } from "timeago.js";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import Image from "next/image";
 import CourseContentList from "./CourseContentList";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckOutForm from "../Payment/CheckOutForm";
 
 type Props = {
   data: any;
-  setRoute: (route: string) => void;
+  stripePromise?: any;
+  clientSecret?: string;
+  // setRoute: (route: string) => void;
 };
 
-const CourseDetails = ({ data, setRoute }: Props) => {
+const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
   const [open, setOpen] = useState(false);
   const { data: userData } = useLoadUserQuery(undefined, {});
   const [user, setUser] = useState<any>();
@@ -46,10 +50,11 @@ const CourseDetails = ({ data, setRoute }: Props) => {
 
   const handleOrder = () => {
     if (!user) {
-      setRoute("Login");
-      openAuthModal(true);
+      // setRoute("Login");
+      if (typeof window !== "undefined" && (window as any).openAuthModal) {
+        (window as any).openAuthModal(true);
+      }
     } else {
-      // Direct enrollment logic
       setOpen(true);
     }
   };
@@ -139,100 +144,102 @@ const CourseDetails = ({ data, setRoute }: Props) => {
             </div>
 
             {/* REVIEWS & REPLIES */}
-            <div className="space-y-6 pt-4">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Student Feedback
-                </h2>
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  ({data.rating || 0} ★)
-                </span>
-              </div>
+            {reversedReviews.length > 0 && (
+              <div className="space-y-6 pt-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Student Feedback
+                  </h2>
+                  <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    ({data.rating || 0} ★)
+                  </span>
+                </div>
 
-              <div className="space-y-4">
-                {reversedReviews.map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    className="p-5 rounded-2xl border border-slate-200/50 bg-white dark:border-white/5 dark:bg-[#0b0c14]/40 space-y-3 shadow-xs"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={
-                            item.user?.avatar?.url ||
-                            "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
-                          }
-                          width={44}
-                          height={44}
-                          alt="User avatar"
-                          className="w-11 h-11 rounded-full object-cover ring-2 ring-[#37a39a]/10"
-                        />
-                        <div>
-                          <h5 className="text-sm font-semibold text-slate-900 dark:text-white ">
-                            {item.user?.name}
-                          </h5>
-                          <div className="flex items-center mt-1">
-                            <div className="scale-75 origin-left">
-                              <Ratings rating={item.rating} />
-                            </div>
-                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                              ({item.rating || 0} / 5)
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                        {item.createdAt ? format(item.createdAt) : ""}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-slate-600 dark:text-slate-300 pl-0 sm:pl-14 leading-relaxed">
-                      {item.comment}
-                    </p>
-
-                    {item.commentReplies?.map(
-                      (reply: any, replyIndex: number) => (
-                        <div
-                          className="ml-4 sm:ml-14 mt-3 p-4 rounded-xl bg-slate-50 dark:bg-white/5 flex gap-3 border border-slate-100 dark:border-transparent"
-                          key={replyIndex}
-                        >
+                <div className="space-y-4">
+                  {reversedReviews.map((item: any, index: number) => (
+                    <div
+                      key={index}
+                      className="p-5 rounded-2xl border border-slate-200/50 bg-white dark:border-white/5 dark:bg-[#0b0c14]/40 space-y-3 shadow-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
                           <Image
                             src={
-                              reply.user?.avatar?.url ||
+                              item.user?.avatar?.url ||
                               "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
                             }
-                            width={36}
-                            height={36}
-                            alt="Staff avatar"
-                            className="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/10"
+                            width={44}
+                            height={44}
+                            alt="User avatar"
+                            className="w-11 h-11 rounded-full object-cover ring-2 ring-[#37a39a]/10"
                           />
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-1.5">
-                              <h5 className="text-xs font-bold text-slate-900 dark:text-white">
-                                {reply.user?.name}
-                              </h5>
-                              <VscVerifiedFilled className="text-[#37a39a] text-sm" />
-                              <span className="text-[9px] bg-blue-500/15 text-[#37a39a] px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider">
-                                Staff
+                          <div>
+                            <h5 className="text-sm font-semibold text-slate-900 dark:text-white ">
+                              {item.user?.name}
+                            </h5>
+                            <div className="flex items-center mt-1">
+                              <div className="scale-75 origin-left">
+                                <Ratings rating={item.rating} />
+                              </div>
+                              <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                ({item.rating || 0} / 5)
                               </span>
                             </div>
-                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                              {reply.comment}
-                            </p>
-                            <span className="block text-[10px] text-slate-400 pt-1">
-                              {reply.createdAt ? format(reply.createdAt) : ""}
-                            </span>
                           </div>
                         </div>
-                      ),
-                    )}
-                  </div>
-                ))}
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+                          {item.createdAt ? format(item.createdAt) : ""}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-slate-600 dark:text-slate-300 pl-0 sm:pl-14 leading-relaxed">
+                        {item.comment}
+                      </p>
+
+                      {item.commentReplies?.map(
+                        (reply: any, replyIndex: number) => (
+                          <div
+                            className="ml-4 sm:ml-14 mt-3 p-4 rounded-xl bg-slate-50 dark:bg-white/5 flex gap-3 border border-slate-100 dark:border-transparent"
+                            key={replyIndex}
+                          >
+                            <Image
+                              src={
+                                reply.user?.avatar?.url ||
+                                "https://res.cloudinary.com/dshp9jnuy/image/upload/v1665822253/avatars/nrxsg8sd9iy10bbsoenn.png"
+                              }
+                              width={36}
+                              height={36}
+                              alt="Staff avatar"
+                              className="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/10"
+                            />
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                                  {reply.user?.name}
+                                </h5>
+                                <VscVerifiedFilled className="text-[#37a39a] text-sm" />
+                                <span className="text-[9px] bg-blue-500/15 text-[#37a39a] px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider">
+                                  Staff
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {reply.comment}
+                              </p>
+                              <span className="block text-[10px] text-slate-400 pt-1">
+                                {reply.createdAt ? format(reply.createdAt) : ""}
+                              </span>
+                            </div>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* RIGHT COLUMN: FIXED STICKY VIDEO PLAYER & PURCHASE PANEL CARD */}
+          {/* RIGHT COLUMN: FIXED STICKY VIDEO PLAYER */}
           <div className="w-full md:w-[35%] md:sticky md:top-28 md:h-fit">
             <div className="w-full overflow-hidden rounded-2xl border border-white/70 bg-white/85 p-3.5 shadow-[0_20px_50px_-32px_rgba(15,23,42,0.15)] backdrop-blur-xl dark:border-white/10 dark:bg-[#0b0c14]/90 dark:shadow-[0_20px_50px_-30px_rgba(0,0,0,0.55)]">
               <div className="overflow-hidden rounded-xl bg-slate-900 shadow-inner">
@@ -298,20 +305,31 @@ const CourseDetails = ({ data, setRoute }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* CHECKOUT / ACTION MODAL */}
+
       {open && (
-        <>
-          <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center">
-            <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3">
-              <div className="w-full flex justify-end">
-                <IoCloseOutline
-                  size={40}
-                  className="text-black cursor-pointer"
-                  onClick={() => setOpen(false)}
-                />
-              </div>
+        <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="w-[500px] max-h-[85vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden">
+            {/* 2. Sticky Header: Keeps the close button accessible at all times */}
+            <div className="w-full flex justify-end p-3 pb-1 border-b border-slate-100 shrink-0 sticky top-0 bg-white z-10">
+              <IoCloseOutline
+                size={32}
+                className="text-slate-600 hover:text-black transition-colors cursor-pointer"
+                onClick={() => setOpen(false)}
+              />
+            </div>
+
+            {/* 3. Scrollable Body: Only this container scrolls when Stripe expands */}
+            <div className="w-full p-5 overflow-y-auto flex-1">
+              {stripePromise && clientSecret && (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <CheckOutForm setOpen={setOpen} data={data} user={user} />
+                </Elements>
+              )}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

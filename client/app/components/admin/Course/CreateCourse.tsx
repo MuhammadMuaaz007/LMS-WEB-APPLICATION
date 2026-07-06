@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 const CreateCourse = () => {
   const [active, setActive] = useState(0);
   const [createCourse, { isLoading }] = useCreateCourseMutation();
+  
 
   const router = useRouter();
 
@@ -24,6 +25,8 @@ const CreateCourse = () => {
     tags: "",
     level: "",
     demoUrl: "",
+    rating: "",
+    purchased:"",
     thumbnail: "",
   });
   const [benefits, setBenefits] = useState([{ title: "" }]);
@@ -71,7 +74,6 @@ const CreateCourse = () => {
       }),
     );
 
-    
     return {
       name: courseInfo.name,
       description: courseInfo.description,
@@ -83,12 +85,12 @@ const CreateCourse = () => {
       level: courseInfo.level,
       demoUrl: courseInfo.demoUrl,
       totalVideos: courseContentData.length,
+      rating: Number(courseInfo.rating),
       benefits: formattedBenefits,
       prerequisites: formattedPrerequisites,
       courseData: formattedCourseContentData,
     };
   };
-  console.log("Formatted Course Data:",);
 
   const handleSubmit = async () => {};
 

@@ -12,8 +12,7 @@ type Props = {};
 
 const Hero: FC<Props> = () => {
   const [search, setSearch] = useState("");
-  const { data } = useGetHeroDataQuery("Banner", {});
-  console.log("Hero Data:", data); // Debugging line to check the fetched data
+  const { data } = useGetHeroDataQuery("Banner", {}); // Debugging line to check the fetched data
   // Replaced images with letters
   const clients = [
     { letter: "A", color: "bg-blue-500" },

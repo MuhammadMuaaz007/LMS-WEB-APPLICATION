@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 const Page = () => {
   const params = useParams();
   const id = params?.id as string;
+// Log the course ID to verify it's being captured correctly
 
   return (
     <div>

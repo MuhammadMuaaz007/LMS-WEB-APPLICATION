@@ -30,16 +30,16 @@ const Courses = () => {
             Featured Courses
           </span>
           <h1 className="mt-4 font-Poppins text-[28px] leading-[1.1] sm:text-[36px] lg:text-[48px] font-bold tracking-tight text-slate-900 dark:text-white">
-            Expand your career with{" "}courses
+            Expand your career with courses
             <span className="text-gradient text-[#37a39a]">
-               <br></br>that feel premium
+              <br></br>that feel premium
             </span>
           </h1>
         </div>
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6.25 lg:grid-cols-3 lg:gap-1.25 1500px:grid-cols-4 1500px:gap-8.75 mb-12 border-0">
-          {courses.map((item: Course, index: number) => (
-            <CourseCard item={item} key={index} />
+        {/* 🎛️ Change gap-x-6 or gap-8 to gap-4 or gap-5 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 auto-rows-fr">
+          {courses.map((course) => (
+            <CourseCard key={course._id} item={course} />
           ))}
         </div>
       </div>

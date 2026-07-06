@@ -4,6 +4,7 @@ import CoursePlayer from "../../../utils/CoursePlayer";
 import Ratings from "../../../utils/Ratings";
 import React, { FC } from "react";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import CourseData from "./CourseData";
 
 type Props = {
   active: number;
@@ -32,9 +33,7 @@ const CoursePreview: FC<Props> = ({
 
   return (
     <div className="w-full max-w-[850px] mx-auto mt-4 md:mt-10 p-4 font-Poppins text-slate-800 dark:text-gray-100 box-border">
-      {/* 💻 STACKED FLOW CONTAINER (Strict Vertical Alignment) */}
       <div className="w-full flex flex-col gap-8">
-        {/* 🎬 1. TOP VIDEO PLAYER & PURCHASING CARD */}
         <div className="w-full space-y-6">
           <div className="bg-white dark:bg-[#0b0c14] border border-gray-200/60 dark:border-white/10 rounded-2xl p-4 sm:p-6 shadow-sm">
             {/* Embedded Media Player Frame Wrapper */}
@@ -97,14 +96,14 @@ const CoursePreview: FC<Props> = ({
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
               {courseData?.name || "Untitled Course Template"}
             </h1>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-gray-400">
+            {/* <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs sm:text-sm font-medium text-slate-500 dark:text-gray-400">
               <div className="flex items-center gap-1.5">
                 <Ratings rating={courseData?.rating || 0} />
                 <span className="ml-1">{courseData?.rating || 0}.0</span>
               </div>
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-gray-700" />
               <span>{courseData?.purchased || 0} Students Enrolled</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Benefits Box Segment */}
@@ -195,7 +194,7 @@ const CoursePreview: FC<Props> = ({
           type="button"
           disabled={isLoading}
           className="w-full sm:w-[150px] order-1 sm:order-2 flex items-center justify-center h-[42px] bg-[#37a39a] text-white font-medium text-sm rounded-xl transition-all duration-200 select-none shadow-md shadow-[#37a39a]/10 hover:bg-[#2d857e] disabled:opacity-80 disabled:cursor-not-allowed gap-2"
-          onClick={ handleCourseCreate}
+          onClick={handleCourseCreate}
         >
           {isLoading ? (
             <>
