@@ -7,18 +7,30 @@ import { BiSearch } from "react-icons/bi";
 
 import HeroImage from "../../../public/assets/hero-banner-1.png";
 import { useGetHeroDataQuery } from "@/redux/features/layout/LayoutApi";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 type Props = {};
 
 const Hero: FC<Props> = () => {
   const [search, setSearch] = useState("");
-  const { data } = useGetHeroDataQuery("Banner", {}); // Debugging line to check the fetched data
-  // Replaced images with letters
+  const router = useRouter();
+  const { data } = useGetHeroDataQuery("Banner", {});
+
   const clients = [
     { letter: "A", color: "bg-blue-500" },
     { letter: "B", color: "bg-purple-500" },
     { letter: "C", color: "bg-pink-500" },
   ];
+  const handleSearch = (e: any) => {
+    e.preventDefault();
+    if (search == "") {
+      toast.error("Please enter a search term");
+      return;
+    } else {
+      router.push(`/courses?title=${search}`);
+    }
+  };
 
   return (
     <section className="relative w-full overflow-hidden">
@@ -73,7 +85,10 @@ const Hero: FC<Props> = () => {
             </p>
 
             {/* SEARCH */}
-            <form className="mt-7 w-full max-w-xl mx-auto lg:mx-0">
+            <form
+              className="mt-7 w-full max-w-xl mx-auto lg:mx-0"
+              onSubmit={handleSearch}
+            >
               <div className="flex items-center rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-md bg-white dark:bg-slate-800">
                 <input
                   type="search"
@@ -96,6 +111,7 @@ const Hero: FC<Props> = () => {
                 <button
                   title="Search"
                   type="submit"
+                  disabled={search.trim() === ""}
                   className="
                     px-4
                     sm:px-6
