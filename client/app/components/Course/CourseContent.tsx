@@ -1,4 +1,3 @@
-
 import { useGetCourseContentQuery } from "@/redux/features/courses/coursesApi";
 import React, { useState } from "react";
 import Loader from "../Loader/Loader";
@@ -17,9 +16,10 @@ const CourseContent = ({ id, user }: Props) => {
     isLoading,
     refetch,
   } = useGetCourseContentQuery(id, { refetchOnMountOrArgChange: true });
+
   const data = contentData?.content;
   const [activeVideo, setActiveVideo] = useState(0);
-  // console.log(data);
+  // console.log(contentData);
   const [open, setOpen] = useState(false);
   const [route, setRoute] = useState("Login");
   return (
@@ -38,7 +38,7 @@ const CourseContent = ({ id, user }: Props) => {
           <div className="w-full grid min-[800px]:grid-cols-10">
             <Heading
               title={data[activeVideo]?.title}
-              description="ANything"
+              description="Anything"
               keywords={data[activeVideo]?.tags}
             />
             <div className="col-span-7">

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"; // Changed from redirect
 import React, { useEffect, use } from "react"; // Added 'use'
 
 type Props = {
-  params: Promise<{ id: string }>; // Typed as a Promise for Next.js App Router safety
+  params: Promise<{ id: string }>; 
 };
 
 const Page = ({ params }: Props) => {
@@ -19,24 +19,21 @@ const Page = ({ params }: Props) => {
   const { isLoading, error, data } = useLoadUserQuery(undefined, {});
 
   useEffect(() => {
-    // 2. Protect route if user loaded but course isn't purchased
     if (data?.user) {
       const isPurchased = data.user.courses.find(
         (item: any) => item._id === id
       );
       
       if (!isPurchased) {
-        router.push("/"); // Clean client-side navigation
+        router.push("/");
       }
     }
     
-    // 3. Handle loading errors
     if (error) {
       router.push("/");
     }
   }, [data, error, id, router]);
 
-  // 4. Added safe checks to ensure data exists before rendering content
   return (
     <>
       {isLoading || !data?.user ? (

@@ -87,7 +87,7 @@ export const editCourse = CatchAsyncError(
       });
 
       // 🔥 UPDATED: Sync changes to Redis Cache
-      await updateCourseCache(courseId);
+      await updateCourseCache(courseId.toString());
 
       res.status(200).json({
         success: true,
@@ -214,7 +214,7 @@ export const addQuestion = CatchAsyncError(
       await course?.save();
 
       // 🔥 UPDATED: Sync structural upgrades down to Redis Cache
-      await updateCourseCache(courseId);
+      await updateCourseCache(courseId.toString());
 
       res.status(200).json({
         success: true,
@@ -265,6 +265,8 @@ export const addAnswer = CatchAsyncError(
       const newAnswer: any = {
         user: req.user,
         answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       // add this answer to our course content
@@ -273,7 +275,7 @@ export const addAnswer = CatchAsyncError(
       await course?.save();
 
       // 🔥 UPDATED: Sync fresh responses to Redis Cache
-      await updateCourseCache(courseId);
+      await updateCourseCache(courseId.toString());
 
       if (req.user?._id === question.user._id) {
         await NotificationModel.create({
@@ -347,11 +349,17 @@ export const addReview = CatchAsyncError(
         course.rating = sum / course.reviews.length;
       }
 
-      // 1. Save to MongoDB
+      await NotificationModel.create({
+        userId: req.user?._id.toString(),
+        title: "New Review Received",
+        message: `You have a new review in the course ${course?.name}`,
+      });
+
+      
       await course?.save();
 
       // 2. Clear out projections accurately in Redis
-      await updateCourseCache(courseId);
+      await updateCourseCache(courseId.toString());
 
       res.status(200).json({
         success: true,
@@ -387,6 +395,8 @@ export const addReviewReply = CatchAsyncError(
       const reviewReply: any = {
         comment,
         user: req.user,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       if (!review.commentReplies) {
         review.commentReplies = [];
@@ -395,7 +405,7 @@ export const addReviewReply = CatchAsyncError(
       await course?.save();
 
       // 🔥 UPDATED: Overwrite projection payload in Redis securely
-      await updateCourseCache(courseId);
+      await updateCourseCache(courseId.toString());
 
       res.status(200).json({
         success: true,

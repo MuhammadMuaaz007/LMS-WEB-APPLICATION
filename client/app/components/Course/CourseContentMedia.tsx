@@ -10,7 +10,7 @@ import {
 import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
 import Image from "next/image";
 import { format } from "timeago.js";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   AiFillStar,
@@ -39,7 +39,7 @@ const CourseContentMedia = ({
   user,
   refetch,
 }: Props) => {
-  const [activeBar, setactiveBar] = useState(0);
+  const [activeBar, setActiveBar] = useState(0);
   const { data: courseData, refetch: courseRefetch } = useGetCourseDetailsQuery(
     id,
     { refetchOnMountOrArgChange: true },
@@ -230,7 +230,7 @@ const CourseContentMedia = ({
                 ? "bg-white text-[#37a39a] shadow-xs dark:bg-white/10 dark:text-white"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             }`}
-            onClick={() => setactiveBar(index)}
+            onClick={() => setActiveBar(index)}
           >
             {text}
           </button>
@@ -481,7 +481,7 @@ const CourseContentMedia = ({
                       )}
 
                       {/* REVIEWS INLINE STAFF REPLIES */}
-                      {item.commnetRepice?.map(
+                      {item.commentReplies?.map(
                         (replyItem: any, replyIndex: number) => (
                           <div
                             className="ml-4 sm:ml-14 p-4 rounded-xl bg-slate-50 dark:bg-white/5 flex gap-3 border border-slate-100 dark:border-transparent"
@@ -629,10 +629,10 @@ const CommentItem = ({
       {/* REPLIES INLINE LAYOUT OPEN COMPONENT */}
       {replyActive && questionId === item._id && (
         <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-white/5 mt-2">
-          {item.questionReplies?.map((replyItem: any) => (
+          {item.questionReplies?.map((replyItem: any,index: number) => (
             <div
               className="sm:ml-14 p-4 rounded-xl bg-slate-50 dark:bg-white/5 flex gap-3 border border-slate-100 dark:border-transparent"
-              key={replyItem._id}
+              key={replyItem._id || index}
             >
               <Image
                 src={
