@@ -18,12 +18,20 @@ type Props = {
   data: any;
   stripePromise?: any;
   clientSecret?: string;
-  // setRoute: (route: string) => void;
+  setRoute: (route: string) => void;
+
+  setOpen: (open: boolean) => void;
 };
 
-const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
-  const [open, setOpen] = useState(false);
+const CourseDetails = ({
+  data,
+  stripePromise,
+  clientSecret,
+  setOpen: openAuthModal,
+  setRoute,
+}: Props) => {
   const { data: userData } = useLoadUserQuery(undefined, {});
+  const [open, setOpen] = useState(false);
   const [user, setUser] = useState<any>();
   const [reversedReviews, setReversedReviews] = useState<any[]>([]);
   console.log(data);
@@ -50,13 +58,11 @@ const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
     user && user?.courses?.find((item: any) => item._id === data._id);
 
   const handleOrder = () => {
-    if (!user) {
-      // setRoute("Login");
-      if (typeof window !== "undefined" && (window as any).openAuthModal) {
-        (window as any).openAuthModal(true);
-      }
-    } else {
+    if (user) {
       setOpen(true);
+    } else {
+      setRoute("Login");
+      openAuthModal(true);
     }
   };
 

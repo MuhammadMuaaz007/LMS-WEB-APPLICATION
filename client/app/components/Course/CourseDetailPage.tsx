@@ -18,15 +18,17 @@ const CourseDetailPage: FC<Props> = ({ id }) => {
   const [route, setRoute] = useState("");
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useGetCourseDetailsQuery(id);
-  const { data: config , } = useGetStripePublishableKeyQuery({});
-  const [createPaymentIntent, { data: paymentIntentData , isLoading: isConfigLoading}] =
-    useCreatePaymentIntentMutation();
+  const { data: config } = useGetStripePublishableKeyQuery({});
+  const [
+    createPaymentIntent,
+    { data: paymentIntentData, isLoading: isConfigLoading },
+  ] = useCreatePaymentIntentMutation();
   const [stripePromise, setStripePromise] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
   useEffect(() => {
     if (config) {
-      const publishAblekey = config?.publishablekey;
-      setStripePromise(loadStripe(publishAblekey));
+      const publishAbleKey = config?.publishablekey;
+      setStripePromise(loadStripe(publishAbleKey));
     }
     if (data) {
       const amount = Math.round(data.course.price * 100);
@@ -57,13 +59,15 @@ const CourseDetailPage: FC<Props> = ({ id }) => {
             setRoute={setRoute}
             route={route}
           />
-          {stripePromise && clientSecret && (
-            <CourseDetails
-              data={data.course}
-              stripePromise={stripePromise}
-              clientSecret={clientSecret}
-            />
-          )}
+
+          <CourseDetails
+            data={data.course}
+            stripePromise={stripePromise}
+            clientSecret={clientSecret}
+            setOpen={setOpen}
+            setRoute={setRoute}
+          />
+
           <Footer />
         </div>
       )}
