@@ -34,7 +34,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
   const { user } = useSelector((state: any) => state.auth);
   const [logout, setLogout] = useState(false);
 
-  // 1. Destructure "status" from NextAuth to monitor the cookie handshake
   const { data: sessionData, status: sessionStatus } = useSession();
 
   const {} = useLogoutQuery(undefined, {
@@ -48,7 +47,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
     },
   );
 
-  // 2. Destructure isLoading from your custom backend social login mutation
   const [socialAuth, { isSuccess, isLoading: socialAuthLoading }] =
     useSocialAuthMutation();
   const socialAuthCalled = useRef(false);

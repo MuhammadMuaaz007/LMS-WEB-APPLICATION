@@ -8,6 +8,9 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   setOpen: any;
@@ -15,7 +18,7 @@ type Props = {
   user: any;
 };
 
-const CheckOutForm: React.FC<Props> = ({ data, setOpen, user }) => {
+const CheckOutForm: React.FC<Props> = ({ data, user }) => {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -48,6 +51,11 @@ const CheckOutForm: React.FC<Props> = ({ data, setOpen, user }) => {
 
   useEffect(() => {
     if (orderData) {
+        socketId.emit("notification", {
+        title: "New Order",
+        message: `You have a new order from ${data.name}`,
+        userId: user._id,
+      });
       router.push(`/course-access/${data._id}`); 
     }
     

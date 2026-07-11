@@ -10,7 +10,7 @@ import {
 import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
 import Image from "next/image";
 import { format } from "timeago.js";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import {
   AiFillStar,
@@ -21,6 +21,9 @@ import {
 import { BiMessage } from "react-icons/bi";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import Ratings from "@/app/utils/Ratings";
+import socketIO from "socket.io-client";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || "";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   data: any;
@@ -118,11 +121,23 @@ const CourseContentMedia = ({
       setQuestion("");
       refetch();
       toast.success("Question added successfully");
+      socketId.emit("notification", {
+        title: "New Question Received ",
+        message: `You have a new Question from ${data[activeVideo].title}`,
+        userId: user._id,
+      });
     }
     if (answerSuccess) {
       setAnswer("");
       refetch();
       toast.success("Reply added successfully");
+      if (user.role !== "admin") {
+        socketId.emit("notification", {
+          title: `New Question Reply Received`,
+          message: `You have a new question reply in ${data[activeVideo].title}`,
+          userId: user._id,
+        });
+      }
     }
     if (error && "data" in error) {
       toast.error((error as any).data.message);
@@ -135,6 +150,11 @@ const CourseContentMedia = ({
       setRating(1);
       toast.success("Review added successfully");
       courseRefetch();
+      socketId.emit("notification", {
+        title: "New Review Received ",
+        message: `${user?.name} has given a review in ${course?.name}`,
+        userId: user._id,
+      });
     }
     if (reviewError && "data" in reviewError) {
       toast.error((reviewError as any).data.message);
@@ -629,7 +649,7 @@ const CommentItem = ({
       {/* REPLIES INLINE LAYOUT OPEN COMPONENT */}
       {replyActive && questionId === item._id && (
         <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-white/5 mt-2">
-          {item.questionReplies?.map((replyItem: any,index: number) => (
+          {item.questionReplies?.map((replyItem: any, index: number) => (
             <div
               className="sm:ml-14 p-4 rounded-xl bg-slate-50 dark:bg-white/5 flex gap-3 border border-slate-100 dark:border-transparent"
               key={replyItem._id || index}
