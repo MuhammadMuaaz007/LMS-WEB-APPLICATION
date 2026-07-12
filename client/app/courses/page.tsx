@@ -41,7 +41,7 @@ const Page = (props: Props) => {
   const categories = categoriesData?.layout.categories;
 
   return (
-    <div className="bg-white dark:bg-[#0b0c14] min-h-screen text-black dark:text-white transition-colors duration-300">
+    <div className="bg-transparent min-h-screen text-black dark:text-white transition-colors duration-300">
       {isLoading ? (
         <Loader />
       ) : (
