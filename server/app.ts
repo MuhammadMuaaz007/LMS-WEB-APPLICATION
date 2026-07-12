@@ -10,7 +10,7 @@ import orderRouter from "./routes/order.route.js";
 import notificationRoute from "./routes/notification.route.js";
 import analyticsRouter from "./routes/analytics.route.js";
 import layoutRouter from "./routes/layout.route.js";
-
+import { rateLimit } from "express-rate-limit";
 dotenv.config();
 export const app = express();
 // body parser
@@ -24,6 +24,13 @@ app.use(
     credentials: true,
   }),
 );
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  ipv6Subnet: 56,
+});
 app.use(
   "/api/v1",
   userRouter,
@@ -39,5 +46,6 @@ app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   err.statusCode = 404;
   next(err);
 });
+app.use(limiter);
 
 app.use(ErrorMiddleware);

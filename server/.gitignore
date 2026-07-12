@@ -1,0 +1,16 @@
+# Dependency folders (These are huge, never upload them!)
+node_modules/
+
+# Environment variables (Contains private keys/passwords)
+.env
+
+# Build outputs
+dist/
+build/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Debug logs
+npm-debug.log*
