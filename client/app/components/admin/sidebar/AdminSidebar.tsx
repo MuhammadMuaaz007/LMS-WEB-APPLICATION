@@ -25,7 +25,8 @@ import {
   ExitToAppIcon,
 } from "./Icon";
 import avatarDefault from "../../../../public/assets/avatar.png";
-
+import { useLogoutQuery } from "@/redux/features/auth/authApi";
+import { signOut } from "next-auth/react";
 interface SidebarItemProps {
   title: string;
   to: string;
@@ -82,18 +83,27 @@ const SidebarItem: FC<SidebarItemProps> = ({
 };
 
 const AdminSidebar = () => {
-  // ✅ Initialize collapsed based on actual screen width
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth < 768;
     }
     return false;
   });
+  const [logout, setLogout] = useState(false);
+
+  const {} = useLogoutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
+
+  const logoutHandler = async () => {
+    setLogout(true);
+    await signOut({ redirect: false });
+    window.location.href = "/";
+  };
 
   const { user } = useSelector((state: any) => state.auth);
   const pathname = usePathname();
 
-  // ✅ Re-sync on resize (e.g. rotating device, resizing browser)
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -103,11 +113,6 @@ const AdminSidebar = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const logoutHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log("Static Logout Clicked");
-  };
 
   return (
     <div
