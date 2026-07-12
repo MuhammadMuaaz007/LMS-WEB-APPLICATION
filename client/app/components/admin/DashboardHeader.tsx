@@ -14,7 +14,7 @@ const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 type Props = {
   open?: boolean;
-  setOpen?: (open: boolean) => void;
+  setOpen: (open: boolean) => void;
 };
 const DashboardHeader: FC<Props> = ({ open, setOpen }) => {
   const [notifications, setNotifications] = useState<any[]>([]);

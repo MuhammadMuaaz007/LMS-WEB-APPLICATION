@@ -172,8 +172,8 @@ const AllInvoices = ({ isDashboard }: Props) => {
           )}
 
           <Box
-            height={isDashboard ? "35vh" : "75vh"}
             sx={{
+              height: isDashboard ? "35vh" : "75vh",
               "& .MuiDataGrid-root": {
                 border: "none",
                 outline: "none",

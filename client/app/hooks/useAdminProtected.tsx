@@ -9,13 +9,15 @@ interface ProtectedProps {
 }
 
 interface RootState {
-  user: {
-    role: string;
-  } | null;
+  auth: {
+    user: {
+      role: string;
+    } | null;
+  };
 }
 
 export default function AdminProtected({ children }: ProtectedProps) {
-  const {user} = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const isAdmin = user?.role === "admin";
 
   useLayoutEffect(() => {

@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 import { userLoggedIn } from "@/redux/features/auth/authSlice";
 
 type Props = {
-  avatar: string;
+  avatar: string | null;
   user: any;
 };
 
@@ -40,7 +40,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
           // .unwrap() extracts the raw payload or directly throws the error object
           const res = await updateAvatar({ avatar: base64Image }).unwrap();
           toast.success("Avatar updated successfully");
-          
+
           if (res?.user) {
             dispatch(
               userLoggedIn({
@@ -68,7 +68,7 @@ const ProfileInfo: FC<Props> = ({ avatar, user }) => {
           name,
           email: user.email,
         }).unwrap();
-        
+
         toast.success("Profile updated successfully!");
       } catch (err: any) {
         const errorMessage = err?.data?.message || "Profile update failed";

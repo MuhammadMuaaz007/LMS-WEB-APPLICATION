@@ -204,7 +204,7 @@ const CourseContentMedia = ({
       {/* VIDEO PLAYER PANEL */}
       <div className="overflow-hidden rounded-2xl bg-slate-950 shadow-lg border border-slate-200/40 dark:border-white/5">
         <CoursePlayer
-          title={data[activeVideo]?.title}
+       
           videoUrl={data[activeVideo]?.videoUrl}
         />
       </div>

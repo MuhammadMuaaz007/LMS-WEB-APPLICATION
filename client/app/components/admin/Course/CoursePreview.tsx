@@ -38,10 +38,7 @@ const CoursePreview: FC<Props> = ({
           <div className="bg-white dark:bg-[#0b0c14] border border-gray-200/60 dark:border-white/10 rounded-2xl p-4 sm:p-6 shadow-sm">
             {/* Embedded Media Player Frame Wrapper */}
             <div className="w-full rounded-xl overflow-hidden shadow-inner bg-black aspect-video relative">
-              <CoursePlayer
-                videoUrl={courseData?.demoUrl}
-                title={courseData?.title}
-              />
+              <CoursePlayer videoUrl={courseData?.demoUrl} />
             </div>
 
             {/* Pricing Section Modules */}

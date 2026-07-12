@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { IconButton } from "@mui/material";
 import { useSelector } from "react-redux";
+import type { ReactElement } from "react";
 
 import {
   HomeOutlinedIcon,
@@ -28,7 +29,7 @@ import avatarDefault from "../../../../public/assets/avatar.png";
 interface SidebarItemProps {
   title: string;
   to: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   isCollapsed: boolean;
   currentPath: string | null;
 }
@@ -113,7 +114,7 @@ const AdminSidebar = () => {
       className={`fixed top-0 left-0 h-screen z-[99] flex flex-col justify-between transition-all duration-300 border-r
         bg-white dark:bg-[#0b0c14] border-gray-200/60 dark:border-white/10 box-border
         ${isCollapsed ? "w-[75px]" : "w-[260px]"}`}
-        // ✅ Removed max-md:w-[70px] and max-md:items-center — isCollapsed drives width now
+      // ✅ Removed max-md:w-[70px] and max-md:items-center — isCollapsed drives width now
     >
       {/* TOP SECTION */}
       <div className="w-full flex flex-col overflow-y-auto overflow-x-hidden p-3 flex-grow [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -147,7 +148,7 @@ const AdminSidebar = () => {
         <div
           className={`flex flex-col items-center justify-center border-b border-gray-200/60 dark:border-white/10 pb-5 mb-4
             ${isCollapsed ? "mx-0" : "mx-2"}`}
-            // ✅ Removed max-md:hidden — isCollapsed already hides the text, avatar still shows
+          // ✅ Removed max-md:hidden — isCollapsed already hides the text, avatar still shows
         >
           <div className="relative group">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#37a39a] to-[#0d9488] rounded-full blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
@@ -194,33 +195,107 @@ const AdminSidebar = () => {
           >
             Data
           </p>
-          <SidebarItem title="Users" to="/admin/users" icon={<GroupsIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="Invoices" to="/admin/invoices" icon={<ReceiptOutlinedIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
+          <SidebarItem
+            title="Users"
+            to="/admin/users"
+            icon={<GroupsIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="Invoices"
+            to="/admin/invoices"
+            icon={<ReceiptOutlinedIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
 
-          <p className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}>
+          <p
+            className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}
+          >
             Content
           </p>
-          <SidebarItem title="Create Course" to="/admin/create-course" icon={<VideoCallIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="Live Courses" to="/admin/courses" icon={<OndemandVideoIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
+          <SidebarItem
+            title="Create Course"
+            to="/admin/create-course"
+            icon={<VideoCallIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="Live Courses"
+            to="/admin/courses"
+            icon={<OndemandVideoIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
 
-          <p className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}>
+          <p
+            className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}
+          >
             Customization
           </p>
-          <SidebarItem title="Hero" to="/admin/hero" icon={<WebIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="FAQ" to="/admin/faq" icon={<QuizIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="Categories" to="/admin/categories" icon={<WysiwygIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
+          <SidebarItem
+            title="Hero"
+            to="/admin/hero"
+            icon={<WebIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="FAQ"
+            to="/admin/faq"
+            icon={<QuizIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="Categories"
+            to="/admin/categories"
+            icon={<WysiwygIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
 
-          <p className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}>
+          <p
+            className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}
+          >
             Controllers
           </p>
-          <SidebarItem title="Manage Team" to="/admin/team" icon={<PeopleOutlinedIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
+          <SidebarItem
+            title="Manage Team"
+            to="/admin/team"
+            icon={<PeopleOutlinedIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
 
-          <p className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}>
+          <p
+            className={`text-[10px] font-bold text-[#37a39a]/90 uppercase tracking-widest mt-4 mb-1.5 pl-3 ${isCollapsed ? "hidden" : "text-left"}`}
+          >
             Analytics
           </p>
-          <SidebarItem title="Courses Analytics" to="/admin/courses-analytics" icon={<BarChartOutlinedIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="Orders Analytics" to="/admin/orders-analytics" icon={<MapOutlinedIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
-          <SidebarItem title="Users Analytics" to="/admin/users-analytics" icon={<ManageHistoryIcon />} isCollapsed={isCollapsed} currentPath={pathname} />
+          <SidebarItem
+            title="Courses Analytics"
+            to="/admin/courses-analytics"
+            icon={<BarChartOutlinedIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="Orders Analytics"
+            to="/admin/orders-analytics"
+            icon={<MapOutlinedIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
+          <SidebarItem
+            title="Users Analytics"
+            to="/admin/users-analytics"
+            icon={<ManageHistoryIcon />}
+            isCollapsed={isCollapsed}
+            currentPath={pathname}
+          />
         </div>
       </div>
 

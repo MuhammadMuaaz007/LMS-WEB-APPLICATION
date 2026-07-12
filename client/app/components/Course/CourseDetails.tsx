@@ -14,12 +14,12 @@ import CourseContentList from "./CourseContentList";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckOutForm from "../Payment/CheckOutForm";
 
+
 type Props = {
   data: any;
   stripePromise?: any;
   clientSecret?: string;
   setRoute: (route: string) => void;
-
   setOpen: (open: boolean) => void;
 };
 

@@ -69,7 +69,7 @@ const Profile: React.FC<Props> = ({ user }) => {
       {/* Main Content Area */}
       {active === 1 && (
         <div className="w-full flex-1 transition-all duration-300 min-[800px]:mt-0">
-          <ProfileInfo avatar={avatar} user={user} />
+          <ProfileInfo avatar={avatar } user={user} />
         </div>
       )}
       {active === 2 && (

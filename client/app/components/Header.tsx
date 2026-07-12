@@ -273,7 +273,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         <CustomModal
           open={open}
           setOpen={setOpen}
-          route={route}
           setRoute={setRoute}
           activeItem={activeItem}
           component={Login}
@@ -283,7 +282,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         <CustomModal
           open={open}
           setOpen={setOpen}
-          route={route}
           setRoute={setRoute}
           activeItem={activeItem}
           component={SignUp}
@@ -293,7 +291,6 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, setRoute, open }) => {
         <CustomModal
           open={open}
           setOpen={setOpen}
-          route={route}
           setRoute={setRoute}
           activeItem={activeItem}
           component={Verification}

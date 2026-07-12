@@ -10,7 +10,7 @@ import {
   useCreatePaymentIntentMutation,
   useGetStripePublishableKeyQuery,
 } from "@/redux/features/order/orderApi";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, type Stripe } from "@stripe/stripe-js";
 type Props = {
   id: string;
 };
@@ -23,7 +23,8 @@ const CourseDetailPage: FC<Props> = ({ id }) => {
     createPaymentIntent,
     { data: paymentIntentData, isLoading: isConfigLoading },
   ] = useCreatePaymentIntentMutation();
-  const [stripePromise, setStripePromise] = useState(null);
+  const [stripePromise, setStripePromise] =
+    useState<Promise<Stripe | null> | null>(null);
   const [clientSecret, setClientSecret] = useState("");
   useEffect(() => {
     if (config) {
