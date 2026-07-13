@@ -1,17 +1,27 @@
-  import mongoose, { set } from 'mongoose';  
-  import dotenv from 'dotenv';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-  dotenv.config();
+dotenv.config();
 
-  const dbUrl:string=process.env.DB_URL || " ";
-   const connectDB=async()=>{
-    try {
-      await mongoose.connect(dbUrl).then((data:any)=>{
-        console.log(`MongoDB connected with server: ${data.connection.host}`);
-      })
-    } catch (error:any) {
-      console.log(error.message);
-      setTimeout(connectDB, 5000);
+const connectDB = async () => {
+  try {
+    const dbUrl = process.env.DB_URL;
+
+    if (!dbUrl) {
+      throw new Error("DB_URL is missing");
     }
-   }
-   export default connectDB;
+
+    const connection = await mongoose.connect(dbUrl);
+
+    console.log(
+      `MongoDB connected: ${connection.connection.host}`
+    );
+
+  } catch (error:any) {
+    console.log("MongoDB Error:", error.message);
+
+    setTimeout(connectDB, 5000);
+  }
+};
+
+export default connectDB;
