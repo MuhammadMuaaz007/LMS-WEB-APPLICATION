@@ -74,7 +74,12 @@ export const createOrder = CatchAsyncError(
 
       // add course to user's courses
       user?.courses.push(courseId);
-      await redis.set(req.user?._id, JSON.stringify(user), "EX", 3600);
+
+      // 🔥 FIX: Verify req.user?._id exists and convert the ObjectId to a string
+      if (!req.user?._id) {
+        return next(new ErrorHandler("User session not found", 404));
+      }
+      await redis.set(req.user._id.toString(), JSON.stringify(user), "EX", 3600);
 
       await NotificationModel.create({
         userId: user?._id.toString(),
@@ -89,7 +94,7 @@ export const createOrder = CatchAsyncError(
       await user?.save();
       await course?.save();
 
-      // 🔥 FIX: Evict the old course cache from Redis so it syncs up on next load
+      // Evict the old course cache from Redis so it syncs up on next load
       await redis.del(courseId.toString());
 
       newOrder(data, res, next);
