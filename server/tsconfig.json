@@ -1,9 +1,7 @@
 {
     "compilerOptions": {
-      "target": "ES2020",              // Compatible with modern JavaScript
-      "module": "NodeNext",
-      "rootDir": "../server",
-      "outDir": "./build",            // Required for ES Modules in Node.js
+      "target": "ESNext",              // Compatible with modern JavaScript
+      "module": "NodeNext",            // Required for ES Modules in Node.js
       "moduleResolution": "NodeNext",  // Ensures correct module resolution
       "strict": true,                  // Enables strict type checking
       "esModuleInterop": true,         // Allows compatibility with CommonJS
