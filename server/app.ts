@@ -13,6 +13,7 @@ import layoutRouter from "./routes/layout.route.js";
 
 dotenv.config();
 export const app = express();
+
 // body parser
 app.use(express.json({ limit: "50mb" }));
 // cookie parser
@@ -24,6 +25,7 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(
   "/api/v1",
   userRouter,
@@ -33,7 +35,9 @@ app.use(
   analyticsRouter,
   layoutRouter,
 );
+
 app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
+
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;
   err.statusCode = 404;
@@ -41,3 +45,6 @@ app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(ErrorMiddleware);
+
+// Add this line right here:
+export default app;
