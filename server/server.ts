@@ -5,7 +5,7 @@ import connectDB from "./utils/db.js";
 import cloudinary from "cloudinary";
 import http from "http";
 import { initSocketServer } from "./socketServer.js";
-const server=http.createServer(app)
+const server = http.createServer(app);
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -13,8 +13,9 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUD_SECRET_KEY,
 });
 initSocketServer(server);
-//create server
-server.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
-  connectDB();
+
+connectDB().then(() => {
+  server.listen(process.env.PORT, () => {
+    console.log(`Server is connected on the PORT:${process.env.PORT}`);
+  });
 });
