@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express"; // Add Request and Response here
+import type { NextFunction, Request, Response } from "express"; 
 import userModel, { IUser } from "../models/user.model.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors.js";
@@ -227,7 +227,7 @@ export const updateAccessToken = CatchAsyncError(
 //get user info
 export const getUserInfo = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?._id || "";
+    const userId = req.user?._id ? req.user._id.toString() : "";
     const user = await getUserById(userId);
     if (!user) {
       return next(new ErrorHandler("User not found", 404));
@@ -330,7 +330,7 @@ export const updateUserInfo = CatchAsyncError(
       await user.save();
 
       // Update Cache
-      await redis.set(userId, JSON.stringify(user));
+      await redis.set(userId.toString(), JSON.stringify(user));
 
       res.status(200).json({
         success: true,
@@ -398,6 +398,10 @@ export const updateProfilePicture = CatchAsyncError(
         return next(new ErrorHandler("Avatar is required", 400));
       }
       const userId = req.user?._id;
+      if (!userId) {
+        return next(new ErrorHandler("User not found", 404));
+      }
+
       const user = await userModel.findById(userId);
 
       if (!user) {
@@ -421,7 +425,7 @@ export const updateProfilePicture = CatchAsyncError(
 
         // Save updated user information
         await user.save();
-        await redis.set(userId as string, JSON.stringify(user));
+        await redis.set(userId.toString(), JSON.stringify(user));
       }
       // Respond to the client
       res.status(200).json({
