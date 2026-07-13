@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true,
   }),
 );
@@ -33,7 +33,7 @@ app.use(
   analyticsRouter,
   layoutRouter,
 );
-
+app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
 app.all(/.*/, (req: Request, res: Response, next: NextFunction) => {
   const err = new Error(`Route ${req.originalUrl} not found`) as any;
   err.statusCode = 404;
