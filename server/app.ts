@@ -19,9 +19,31 @@ app.use(express.json({ limit: "50mb" }));
 // cookie parser
 app.use(cookieParser());
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000", // Fallback for local frontend
+].filter(Boolean) as string[]; // Removes any undefined values
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or postman)
+      if (!origin) return callback(null, true);
+
+      // Clean trailing slashes from the incoming origin just in case
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      // Check if the clean origin is in our allowed list
+      const isAllowed = allowedOrigins.some(
+        (allowed) => allowed.replace(/\/$/, "") === cleanOrigin,
+      );
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
