@@ -22,7 +22,7 @@ const CoursePlayer: FC<Props> = ({ videoUrl }) => {
     
     setLoading(true);
     axios
-      .post("http://localhost:8000/api/v1/getVdoCipherOTP", {
+      .post("https://lms-web-application-beta.vercel.app/api/v1/getVdoCipherOTP", {
         videoId: videoUrl,
       })
       .then((res) => {
