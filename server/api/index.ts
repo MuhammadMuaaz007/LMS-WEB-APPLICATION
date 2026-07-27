@@ -8,6 +8,5 @@ export default async function handler(req: any, res: any) {
     await connectDB();
     isConnected = true;
   }
-
   return app(req, res);
 }
